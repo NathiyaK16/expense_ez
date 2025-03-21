@@ -1,8 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, SafeAreaView, StatusBar } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const ClaimsScreen = () =>{
+const ClaimsScreen = ({navigation}) =>{
+  const handleAddNewClaim = () =>{
+    navigation.navigate('NewClaimRequest');
+};
+
     return(
         <SafeAreaView style={Styles.container}>
             <StatusBar barStyle='dark-content'/>
@@ -10,6 +14,11 @@ const ClaimsScreen = () =>{
                 <Text style={Styles.headerText}>Claims</Text>
                 <Icon style={Styles.icon} name='notifications-none' size={20}/>
             </View>
+            
+              <TouchableOpacity style={Styles.button} onPress={handleAddNewClaim}>
+                <Text style={Styles.buttonText}>Add New Claim</Text>
+              </TouchableOpacity>
+            
             
         </SafeAreaView>
     )
@@ -33,6 +42,16 @@ const Styles = StyleSheet.create({
       icon:{
         top:15,
         right:10,
+      },
+      button: {
+        borderRadius: 10,
+        backgroundColor: '#7E8356',
+        padding: 15,
+      },
+      buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
       },
       
 })

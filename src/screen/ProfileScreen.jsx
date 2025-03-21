@@ -5,12 +5,14 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import Fontisto from "react-native-vector-icons/Fontisto";
+//import { ThemeContext } from "./ThemeContext";
 
 
 
 const ProfileScreen = ({navigation}) =>{
   
-  
+  // const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  // console.log(isDarkMode);
     return(
         <SafeAreaView style={Styles.container}>
           <StatusBar barStyle='dark-content'/>
@@ -38,7 +40,8 @@ const ProfileScreen = ({navigation}) =>{
             </View>
             <View style={Styles.menuCard}>
               <View style={Styles.menuItem}>
-                <Ionicons name='moon' size={24}/>
+                <View style={Styles.iconContainer}>
+                <Ionicons name='moon' size={24}/></View>
                 <Text style={Styles.menuText}>Dark Mode</Text>
                 <Switch style={Styles.switch} value={false} />
               </View>
@@ -63,7 +66,7 @@ const ProfileScreen = ({navigation}) =>{
 const Styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'white',
   },
   header: {
     padding: 16,
@@ -139,13 +142,21 @@ const Styles = StyleSheet.create({
      marginTop:'60%',
      height:'5%',
      marginLeft:20,
-    },
+  },
   logoutText:{
      color:'white',
      textAlign:'center',
      padding:'9',
      fontWeight:'bold',
-    }
+  },
+  iconContainer:{
+      width:40,
+      height:40,
+      backgroundColor:"gray",
+      borderRadius:999,
+      justifyContent:'center',
+      alignItems:'center',
+  }
 })
 export default ProfileScreen;
 

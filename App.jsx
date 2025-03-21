@@ -17,6 +17,7 @@ import ProfileScreen from './src/screen/ProfileScreen';
 
 
 
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -66,7 +67,8 @@ const App = () => {
         <Stack.Screen name="ForgetPassword" component={ForgetPasswordScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="RequestOTP" component={OTPScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="CreatePassword" component={CreatePasswordScreen} options={{ headerShown: false }}/>
-        <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} />
+        <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="Claims" component={ClaimsScreen} />
         
       </Stack.Navigator>
     </NavigationContainer>
