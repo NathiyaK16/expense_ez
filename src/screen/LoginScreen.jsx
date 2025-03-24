@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
+import axios from 'axios';
+
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -13,17 +15,51 @@ const LoginScreen = ({ navigation }) => {
   const handlePasswordChange = (text) => setPassword(text);
   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
-  const handleLogin = () => {
-    if (username && companyname && password) {
-      navigation.replace('MainTabs');
-    } else {
-      Alert.alert("Please enter all credentials");
-    }
-  };
+  // const handleLogin = () => {
+  //   if (username && companyname && password) {
+  //     navigation.replace('MainTabs');
+  //   } else {
+  //     Alert.alert("Please enter all credentials");
+  //   }
+  // };
 
   const handleForgetPassword = () => {
     navigation.navigate('ForgetPassword');
   };
+  const handleLogin=async()=>{ 
+    if (username && companyname && password) {
+    const formData = {
+      "company_id" :companyname,
+      "emp_id" : username,
+      "password" : password, 
+  }
+    try{
+      const response = await axios({
+        method:"post",
+        url:`http://192.168.0.23:8081/v1/expensez/login/`,
+        data: formData,
+        headers: {
+          'Content-Type': 'application/json',  
+        }
+      }).then((res)=>{
+        console.log('Response:--->>>>>>>>>>>>>>>>>>>>>>>>>>>>', res.data);
+        navigation.replace('MainTabs');
+      }).catch(()=>{
+        Alert.alert("Something went wrong");
+      })
+      
+      // if(response && response?.data && response?.data?.status== 200){
+      //   navigation.replace('MainTabs');
+      // }
+    }
+    catch(error){
+      console.error("Error:",error);
+    }
+  }else {
+        Alert.alert("Please enter all credentials");
+      }
+     
+      }
 
   return (
     <View style={styles.container}>

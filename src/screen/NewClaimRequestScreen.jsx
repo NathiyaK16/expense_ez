@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {View,Text,TextInput,TouchableOpacity,StyleSheet,SafeAreaView,ScrollView,Image,} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DocumentScanner from "react-native-document-scanner-plugin";
+import axios from 'axios';
 
 const NewClaimRequestScreen = ({navigation}) => {
   const [scannedImage,setScannedImage] = useState(null);
@@ -13,6 +14,9 @@ const NewClaimRequestScreen = ({navigation}) => {
   const [date, setDate] = useState(new Date(null));
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+// const[travel,setTravel] =useState({
+  
+// })
   const scanDocument = async () =>{
     const scannedImages = await DocumentScanner.scanDocument();
     if(scannedImages && scannedImages.length > 0){
@@ -32,6 +36,29 @@ const NewClaimRequestScreen = ({navigation}) => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
+  const handleSubmit = () =>{
+    navigation.navigate('SubmitClaim');
+  }
+  // useEffect(() =>{
+  //   try{
+  //     axios({
+  //       method:"get",
+  //       url:`http://192.168.0.23:8081/v1/client/policy/get_all_policies2/?operation=read&company_id=durr`,
+  //       headers: {
+  //         'Content-Type': 'application/json',  
+  //       }
+  //     }).then((res)=>{
+  //       console.log('Response:--->>>>>>>>>>>>>>>>>>>>>>>>>>>>', res.data);
+
+  //     }).catch(()=>{
+  //       Alert.alert("Something went wrong");
+  //     })
+      
+  //   }catch(error){
+  //     console.error("Error:",error);
+  //   }
+  // }
+  // ,[])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,7 +82,7 @@ const NewClaimRequestScreen = ({navigation}) => {
             <Text style={styles.label}>Main Expense Category</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={mainCategory}
+                selectedValue={null}
                 style={styles.picker}
                 onValueChange={(itemValue) => setMainCategory(itemValue)}
               >
@@ -129,7 +156,7 @@ const NewClaimRequestScreen = ({navigation}) => {
             <TouchableOpacity style={styles.cancelButton}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.submitButton}>
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
               <Text style={styles.submitButtonText}>Submit</Text>
             </TouchableOpacity>
           </View>
@@ -167,7 +194,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   header: {
-    padding: 0,
+    padding: 30,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
@@ -222,7 +249,7 @@ const styles = StyleSheet.create({
   },
   picker: {
     flex: 1,
-    height: 45,
+    height:55,
   },
   pickerIcon: {
     paddingRight: 10,

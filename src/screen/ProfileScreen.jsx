@@ -56,7 +56,7 @@ const ProfileScreen = ({navigation}) =>{
                 <Entypo name='chevron-right' size={22} color="#121212"/>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={Styles.logoutButton} onPress={() => navigation.navigate('Login')}>
+            <TouchableOpacity style={Styles.logoutButton} onPress={() => navigation.navigate('Logout')}>
                         <Text style={Styles.logoutText}>Log Out</Text>
                        </TouchableOpacity>
           
