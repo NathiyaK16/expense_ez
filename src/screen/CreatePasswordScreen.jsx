@@ -19,7 +19,7 @@ const CreatePasswordScreen = ({ navigation }) => {
   
   const handleSubmit = () => {
     if (password === confirmpassword) {
-      navigation.navigate('New Claim Request')
+      navigation.navigate('MainTabs')
     } else {
       alert("Passwords do not match.");
     }

@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text,View } from "react-native";
 
 
-const HomeScreen = () =>{
+const HomeScreen = ({navigation}) =>{
   return(
     <View style={Styles.container}>
       <Text style={Styles.text}>WELCOME TO LANDING PAGE</Text>

@@ -15,9 +15,6 @@ import ClaimsScreen from './src/screen/ClaimsScreen';
 import ApprovalsScreen from './src/screen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen';
-// import LogoutScreen from './src/screen/LogoutScreen';
-
-
 
 
 const Stack = createNativeStackNavigator();
@@ -65,14 +62,13 @@ const App = () => {
         <Stack.Screen name="Welcome" component={OnboardingScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MainTabs" component={BottomTabs} options={{headerShown:false}}/>
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
+        {/* <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/> */}
         <Stack.Screen name="ForgetPassword" component={ForgetPasswordScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="RequestOTP" component={OTPScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="CreatePassword" component={CreatePasswordScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} options={{headerShown:false}}/>
-        <Stack.Screen name="Claims" component={ClaimsScreen} />
-        <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} />
-        {/* <Stack.Screen name="Logout" component={LogoutScreen} /> */}
+        <Stack.Screen name="Claims" component={ClaimsScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} options={{headerShown:false}}/>
         
       </Stack.Navigator>
     </NavigationContainer>

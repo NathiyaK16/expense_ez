@@ -7,17 +7,22 @@ const OnboardingScreen =({navigation}) =>{
     return(
 <Swiper 
 ref={swiperRef}
-loop={false}
 dot={<View style={Styles.dot} />}
 activeDot={<View style={Styles.activeDot} />}
 >
     {/*Slide 1*/}
     <View style={Styles.slide}>
+      <View>
         <Text style={Styles.logo}>Expense EZ Logo</Text>
+        </View>
+        <View style={Styles.container}>
         <Text style={Styles.title}>Welcome!</Text>
         <Text style={Styles.content}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Lorem ipsum dolor sit amet, consectetur 
+adipiscing elit, sed do eiusmod tempor 
+incididunt ut labore et dolore magna aliqua.
         </Text>
+        </View>
         <View style={Styles.buttonContainer}>
        <TouchableOpacity style={Styles.skipButton} onPress={() => navigation.navigate('Login')}>
         <Text style={Styles.skipText}>Skip</Text>
@@ -65,19 +70,24 @@ const Styles = StyleSheet.create({
     slide: {
         flex: 1,
         alignItems: "center",
-        justifyContent: "center",
+        //justifyContent: "center",
         backgroundColor: "#F5F5DC",
         paddingHorizontal: 20,
       },
       logo: {
         fontSize: 24,
         fontWeight: "bold",
-        justifyContent:'center'
+        marginTop:'10%',
+        backgroundColor:'#F5F5DC',
+      },
+      container:{
+        justifyContent:'center',
+        marginTop:'5%',
       },
       title: {
         fontSize: 22,
         fontWeight: "bold",
-        marginTop: 20,
+        marginTop:'40%',
         textAlign:'left',
         justifyContent:'center'
       },
@@ -105,7 +115,7 @@ const Styles = StyleSheet.create({
       },
       buttonContainer: {
         flexDirection: "row",
-        marginTop: '150%',
+        marginTop: '80%',
         position:'relative',
       },
       skipButton: {
@@ -134,10 +144,8 @@ const Styles = StyleSheet.create({
         textAlign:'center'
       },
       getStartedButton: {
-       // backgroundColor: "#7E8356",
         paddingVertical: 12,
         paddingHorizontal: 25,
-        //borderRadius: 10,
         marginTop: '150%',
         borderRadius: 10,
         backgroundColor: '#7E8356',
