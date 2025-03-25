@@ -15,7 +15,7 @@ import ClaimsScreen from './src/screen/ClaimsScreen';
 import ApprovalsScreen from './src/screen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen';
-import LogoutScreen from './src/screen/LogoutScreen';
+// import LogoutScreen from './src/screen/LogoutScreen';
 
 
 
@@ -72,7 +72,7 @@ const App = () => {
         <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Claims" component={ClaimsScreen} />
         <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} />
-        <Stack.Screen name="Logout" component={LogoutScreen} />
+        {/* <Stack.Screen name="Logout" component={LogoutScreen} /> */}
         
       </Stack.Navigator>
     </NavigationContainer>
