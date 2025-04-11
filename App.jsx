@@ -4,17 +4,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import OnboardingScreen from './src/screen/OnboardingScreen';
-import LoginScreen from './src/screen/LoginScreen';
-import ForgetPasswordScreen from './src/screen/ForgetPasswordScreen';
-import OTPScreen from './src/screen/OTPScreen';
-import CreatePasswordScreen from './src/screen/CreatePasswordScreen';
-import NewClaimRequestScreen from './src/screen/NewClaimRequestScreen';
-import HomeScreen from './src/screen/HomeScreen';
-import ClaimsScreen from './src/screen/ClaimsScreen';
-import ApprovalsScreen from './src/screen/ApprovalsScreen';
-import ProfileScreen from './src/screen/ProfileScreen';
-import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen';
+import OnboardingScreen from './src/screen/OnboardingScreen/OnboardingScreen';
+import LoginScreen from './src/screen/LoginScreen/LoginScreen';
+import ForgetPasswordScreen from './src/screen/ForgetPasswordScreen/ForgetPasswordScreen';
+import OTPScreen from './src/screen/OTPScreen/OTPScreen';
+import CreatePasswordScreen from './src/screen/CreatePasswordScreen/CreatePasswordScreen';
+import NewClaimRequestScreen from './src/screen/NewClaimRequestScreen/NewClaimRequestScreen';
+import HomeScreen from './src/screen/HomeScreen/HomeScreen';
+import ClaimsScreen from './src/screen/ClaimsScreen/ClaimsScreen';
+import ApprovalsScreen from './src/screen/ApprovalsScreen/ApprovalsScreen';
+import ProfileScreen from './src/screen/ProfileScreen/ProfileScreen';
+import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen/ClaimSubmitScreen';
 
 
 const Stack = createNativeStackNavigator();

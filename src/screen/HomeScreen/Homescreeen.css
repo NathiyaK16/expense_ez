@@ -1,0 +1,19 @@
+.app_logo {
+    font-size: 20;
+    font-weight: bold;
+}
+
+
+.primary-color {
+    background-color: #fff;
+    color: #222;
+}
+
+.primary-color {
+    background-color: #222;
+}
+
+
+dark {
+    background-color: var(primary-color);
+}

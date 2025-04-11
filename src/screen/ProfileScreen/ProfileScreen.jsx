@@ -7,7 +7,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import Fontisto from "react-native-vector-icons/Fontisto";
 
 const ProfileScreen = ({navigation}) => {
-  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false); 
 
   const handleLogoutConfirm = () => {
     setLogoutModalVisible(false);

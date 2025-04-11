@@ -46,21 +46,21 @@ const ClaimsScreen = ({navigation}) => {
   const claims = [
     { 
       id: '1', 
-      category: 'Food', 
+      category: 'Travel', 
       date: '25/03/2025', 
       amount: 120.00, 
       status: 'Approved' 
     },
     { 
       id: '2', 
-      category: 'Accommodation', 
+      category: 'Food', 
       date: '25/03/2025', 
       amount: 2000.00, 
       status: 'Pending' 
     },
     { 
       id: '3', 
-      category: 'Travel', 
+      category: 'Purchase', 
       date: '25/03/2025', 
       amount: 600.00, 
       status: 'Rejected' 
