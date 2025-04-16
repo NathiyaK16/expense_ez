@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, ThemeProvider } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -16,7 +16,7 @@ import ApprovalsScreen from './src/screen/ApprovalsScreen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen/ClaimSubmitScreen';
 
-
+import ThemeProvider from "./theme/ThemeProvider";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -56,7 +56,7 @@ const BottomTabs = () => (
 
 const App = () => {
   return (
-    
+    <ThemeProvider>
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen name="Welcome" component={OnboardingScreen} options={{ headerShown: false }} />
@@ -72,7 +72,7 @@ const App = () => {
         
       </Stack.Navigator>
     </NavigationContainer>
-    
+    </ThemeProvider>
   );
 };
 
