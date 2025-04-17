@@ -1,6 +1,8 @@
     export const lightTheme = {
-        backgroundColor: "#ffffff",
-        textColor: "#000000",
+        // backgroundColor: "#ffffff",
+        // textColor: "#000000",
+        background: "#ffffff",
+        text: "#000000",
         primaryColor: "#222222",
         buttonBg: "#222222",
         buttonTextColor: "#ffffff",
@@ -12,13 +14,15 @@
       };
 
     export const darkTheme = {
-        backgroundColor: "#1e1e1e",
-        textColor: "#ffffff",
+        // backgroundColor: "#1e1e1e",
+        // textColor: "#ffffff",
+        background: "#1e1e1e",
+        text: "#ffffff",
         primaryColor: "#ffffff",
         buttonBg: "#f9f9f9",
         buttonTextColor: "#222222",
         secondaryColor: "#dddddd",
-        headerBg: "rgba(30, 30, 30, 0.8)",
+        headerBg: "rgba(83, 52, 52, 0.8)",
         borderColor: "#444444",
         textShadow: "1px 1px 1px #fff, 0 -1px 1px #fff, 1px 1px 1px #fff, -1px 0 0 #fff, 1px 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff",
         color: "#1e1e1e"

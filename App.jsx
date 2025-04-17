@@ -1,5 +1,7 @@
 import React from 'react';
-import { NavigationContainer, ThemeProvider } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
+import { ThemeProvider } from './src/theme/ThemeProvider';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -16,7 +18,7 @@ import ApprovalsScreen from './src/screen/ApprovalsScreen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen/ClaimSubmitScreen';
 
-import ThemeProvider from "./theme/ThemeProvider";
+//import ThemeProvider from "./theme/ThemeProvider";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 

@@ -272,7 +272,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import Fontisto from "react-native-vector-icons/Fontisto";
-import { useTheme } from "../theme/useTheme";
+import { useTheme } from "../../theme/useTheme";
 
 const ProfileScreen = ({ navigation }) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
@@ -289,7 +289,7 @@ const ProfileScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={[Styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={Styles.scrollContainer}>
-        <StatusBar barStyle={themeName === "dark" ? "light-content" : "dark-content"} />
+        <StatusBar barStyle={themeName === "dark" ? "dark-content" : "light-content"} />
         <View style={Styles.header}>
           <Text style={[Styles.headertitle, { color: theme.text }]}>My Profile</Text>
         </View>
@@ -322,7 +322,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={Styles.menuCard}>
           <View style={Styles.menuItem}>
             <View style={Styles.iconContainer}>
-              <Ionicons name={themeName === "dark" ? "moon" : "sunny"} size={24} color="#fff" />
+              <Ionicons name= "moon"  size={24} color="#fff" />
             </View>
             <Text style={[Styles.menuText, { color: theme.text }]}>Dark Mode</Text>
             <Switch

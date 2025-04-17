@@ -1,6 +1,6 @@
-// useTheme.js
 import { useContext } from "react";
-import { ThemeContext } from "./ThemeProvider"; // adjust path based on your folder structure
+import { ThemeContext } from "./ThemeProvider"; 
+
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
@@ -11,3 +11,7 @@ export const useTheme = () => {
 
   return context;
 };
+
+
+
+

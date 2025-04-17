@@ -1,10 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useTheme } from '../../theme/useTheme'; 
 
 const ApprovalsScreen = () =>{
+    const { theme, themeName} = useTheme();
+console.log(theme, themeName)
     return(
-        <View style={Styles.container}>
-            <Text>THIS IS Approval PAGE</Text>
+        <View style={[Styles.container, {backgroundColor:theme.background}]}>
+            <Text style={{...Styles.header, ...{color:theme.text}}}>THIS IS Approval PAGE</Text>
         </View>
     )
 }
