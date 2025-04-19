@@ -45,26 +45,54 @@ const NewClaimRequestScreen = ({ navigation }) => {
     navigation.navigate('SubmitClaim');
   };
 
+  // useEffect(() => {
+  //   axios.get('http://192.168.0.24:8081/v1/client/policy/get_all_policies2/?operation=read&company_id=durr')
+  //     .then(res => {
+  //       const apiData = res?.data?.data || [];
+  //       const categories = [];
+  //       const policyMap = {};
+
+  //       apiData.forEach(item => {
+  //         const { main_expense_head, main_expense_name, policy_details } = item;
+  //         categories.push({ id: main_expense_head, name: main_expense_name });
+  //         policyMap[main_expense_name] = policy_details;
+  //       });
+
+  //       setMainCategories(categories);
+  //       setPolicyMap(policyMap);
+  //     })
+  //     .catch(() => {
+  //       Alert.alert("Something went wrong");
+  //     });
+  // }, []);
+
+
   useEffect(() => {
-    axios.get('http://192.168.0.24:8081/v1/client/policy/get_all_policies2/?operation=read&company_id=durr')
-      .then(res => {
-        const apiData = res?.data?.data || [];
-        const categories = [];
-        const policyMap = {};
-
+    const fetchPolicies = async () => {
+      try {
+        const response = await axios.get('http://192.168.0.24:8081/v1/client/policy/get_all_policies2/?operation=read&company_id=durr');
+        const apiData = response?.data?.data || [];
+  
+        const categories = apiData.map(item => ({
+          id: item.main_expense_head,
+          name: item.main_expense_name,
+        }));
+  
+        const map = {};
         apiData.forEach(item => {
-          const { main_expense_head, main_expense_name, policy_details } = item;
-          categories.push({ id: main_expense_head, name: main_expense_name });
-          policyMap[main_expense_name] = policy_details;
+          map[item.main_expense_name] = item.policy_details;
         });
-
+  
         setMainCategories(categories);
-        setPolicyMap(policyMap);
-      })
-      .catch(() => {
-        Alert.alert("Something went wrong");
-      });
+        setPolicyMap(map);
+      } catch (error) {
+        Alert.alert('Something went wrong');
+      }
+    };
+  
+    fetchPolicies();
   }, []);
+  
 
   return (
     <SafeAreaView style={styles.container}>
