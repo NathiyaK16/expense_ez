@@ -1,14 +1,15 @@
 import React from "react";
 import { StyleSheet, Text,TouchableOpacity,View } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import { useTheme } from "../../theme/useTheme";
 const HomeScreen = ({navigation}) =>{
+  const { theme } = useTheme();
   return(
-    <View style={Styles.container}>
+    <View style={[Styles.container,{backgroundColor:theme.background}]}>
       <View style={Styles.header}>
-      <Text style={Styles.headerTitle} class="app_logo"> Expense ez Logo</Text>
+      <Text style={[Styles.headerTitle,{color:theme.text}]} class="app_logo"> Expense ez Logo</Text>
       <TouchableOpacity>
-        <Icon name="notifications-outline" size={24} color="#000" />
+        <Icon name="notifications-outline" size={24} color={theme.text} />
       </TouchableOpacity>
       </View>
       <View>

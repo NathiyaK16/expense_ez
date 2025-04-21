@@ -18,7 +18,7 @@ import ApprovalsScreen from './src/screen/ApprovalsScreen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen/ClaimSubmitScreen';
 
-//import ThemeProvider from "./theme/ThemeProvider";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -64,13 +64,13 @@ const App = () => {
         <Stack.Screen name="Welcome" component={OnboardingScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MainTabs" component={BottomTabs} options={{headerShown:false}}/>
-        {/* <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/> */}
         <Stack.Screen name="ForgetPassword" component={ForgetPasswordScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="RequestOTP" component={OTPScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="CreatePassword" component={CreatePasswordScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Claims" component={ClaimsScreen} options={{headerShown:false}}/>
         <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="Approvals" component={ApprovalsScreen} options={{headerShown:false}}/>
         
       </Stack.Navigator>
     </NavigationContainer>

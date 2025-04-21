@@ -3,26 +3,21 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Scro
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/Ionicons';
-//import DocumentScanner from "react-native-document-scanner-plugin";
 import axios from 'axios';
-
+import { useTheme } from '../../theme/useTheme';
+import { BASEPATH } from '../config';
+import {launchImageLibrary} from 'react-native-image-picker';
 const NewClaimRequestScreen = ({ navigation }) => {
+  const { theme } = useTheme();
   const [scannedImage, setScannedImage] = useState(null);
   const [mainCategory, setMainCategory] = useState(null);
   const [subCategory, setSubCategory] = useState(null);
   const [amount, setAmount] = useState(null);
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-
   const [mainCategories, setMainCategories] = useState([]);
   const [policyMap, setPolicyMap] = useState({});
 
-  // const scanDocument = async () => {
-  //   const scannedImages = await DocumentScanner.scanDocument();
-  //   if (scannedImages && scannedImages.length > 0) {
-  //     setScannedImage(scannedImages[0]);
-  //   }
-  // };
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -44,6 +39,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const handleSubmit = () => {
     navigation.navigate('SubmitClaim');
   };
+
 
   // useEffect(() => {
   //   axios.get('http://192.168.0.24:8081/v1/client/policy/get_all_policies2/?operation=read&company_id=durr')
@@ -70,7 +66,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
-        const response = await axios.get('http://192.168.0.24:8081/v1/client/policy/get_all_policies2/?operation=read&company_id=durr');
+        const response = await axios.get(`${BASEPATH}v1/client/policy/get_all_policies2/?operation=read&company_id=durr`);
         const apiData = response?.data?.data || [];
   
         const categories = apiData.map(item => ({
@@ -94,117 +90,116 @@ const NewClaimRequestScreen = ({ navigation }) => {
   }, []);
   
 
+  const handleUploadBill = async () => {
+    let isMounted = true;  // Mounted flag for safety
+  
+    try {
+      // Launch image library to allow the user to select an image from the device
+      const result = await launchImageLibrary({
+        mediaType: 'photo',       // Specify that you want to pick a photo
+        includeBase64: true,      // Include base64-encoded string (optional)
+      });
+  
+      if (!isMounted) return;  // Check if the component is still mounted
+  
+      if (result.didCancel) {
+        console.log('User cancelled image picker');
+        return;
+      }
+  
+      // Check if assets exist in the result
+      if (result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];  // Get the first selected image
+  
+        console.log('Image selected: ', asset.uri);  // URI of the selected image
+  
+        // You can now upload the image or perform any other operations you need
+        // You can use asset.uri to get the path of the image on the device
+      } else {
+        Alert.alert('Error', 'No image selected.');
+      }
+  
+    } catch (error) {
+      console.error('Upload Error:', error);
+      if (isMounted) {
+        Alert.alert('Error', 'Something went wrong while selecting or uploading the image.');
+      }
+    }
+  
+    // Cleanup to handle component unmounting
+    useEffect(() => {
+      return () => {
+        isMounted = false;
+      };
+    }, []);
+  };
+  
+  
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>New Claim Request</Text>
+        <View style={[styles.header, { backgroundColor: theme.headerBg, borderBottomColor: theme.borderColor }]}>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>New Claim Request</Text>
         </View>
 
         <View style={styles.formContainer}>
-          {/* <TouchableOpacity style={styles.scanButton} onPress={scanDocument}>
-            <Text style={styles.scanButtonText}>Scan Bill</Text>
-          </TouchableOpacity>
-
-          {scannedImage && (
-            <Image source={{ uri: scannedImage }} style={styles.scannedImage} />
-          )} 
-
-          <Text style={styles.orText}>or</Text> */}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Main Expense Category</Text>
-            <View style={styles.pickerContainer}>
-              {/* <Picker
+            <Text style={[styles.label, { color: theme.text }]}>Main Expense Category</Text>
+            <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
+              <Picker
                 selectedValue={mainCategory}
-                style={styles.picker}
+                style={[styles.picker, { color: theme.text }]}
                 onValueChange={(value) => {
                   setMainCategory(value);
                   setSubCategory(null);
-                }}
-              >
-                <Picker.Item label="Select Main Category" value={null} />
+                }}>
+                {!mainCategory && (
+                  <Picker.Item label="Select Main Category" value={null} enabled={false} />
+                )}
                 {mainCategories.map((item) => (
-                  <Picker.Item key={item.id} label={item.name} value={item.name} enabled={true} />
+                  <Picker.Item key={item.id} label={item.name} value={item.name} />
                 ))}
-              </Picker> */}
-              <Picker
-               selectedValue={mainCategory}
-               style={styles.picker}
-               onValueChange={(value) => {
-                setMainCategory(value);
-                setSubCategory(null); // reset subcategory
-               }}
-              >
-             {!mainCategory && (
-             <Picker.Item label="Select Main Category" value={null} enabled={false} />
-             )}
-              {mainCategories.map((item) => (
-                <Picker.Item key={item.id} label={item.name} value={item.name} />
-             ))}
-            </Picker>
-
+              </Picker>
             </View>
           </View>
 
           {mainCategory && (
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Sub Expense Category</Text>
-              <View style={styles.pickerContainer}>
-                {/* <Picker
-                  selectedValue={subCategory}
-                  style={styles.picker}
-                  onValueChange={(value) => setSubCategory(value)}
-                >
-                  <Picker.Item label="Select Subcategory" value={null} />
-                  {policyMap[mainCategory]?.map((item, index) => (
-                    <Picker.Item
-                      key={index}
-                      label={item.sub_expense_name}
-                      value={item.sub_expense_name}
-                    />
-                  ))}
-                </Picker> */}
+              <Text style={[styles.label, { color: theme.text }]}>Sub Expense Category</Text>
+              <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
                 <Picker
                   selectedValue={subCategory}
-                  style={styles.picker}
-                  onValueChange={(value) => setSubCategory(value)}
-                >
-               {!subCategory && (
-                <Picker.Item label="Select Subcategory" value={null} enabled={false} />
-               )}
-                {policyMap[mainCategory]?.map((item, index) => (
-                   <Picker.Item
-                      key={index}
-                      label={item.sub_expense_name}
-                      value={item.sub_expense_name}
-                   />
-                   ))}
+                  style={[styles.picker, { color: theme.text }]}
+                  onValueChange={(value) => setSubCategory(value)}>
+                  {!subCategory && (
+                    <Picker.Item label="Select Subcategory" value={null} enabled={false} />
+                  )}
+                  {policyMap[mainCategory]?.map((item, index) => (
+                    <Picker.Item key={index} label={item.sub_expense_name} value={item.sub_expense_name} />
+                  ))}
                 </Picker>
-
-              </View>
+              </View> 
             </View>
           )}
 
           {subCategory && (
             <View style={[styles.inputGroup, { paddingTop: 10 }]}>
-              <Text style={styles.label}>Policy Details</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Policy Details</Text>
               {(() => {
                 const selectedPolicy = policyMap[mainCategory]?.find(
                   (item) => item.sub_expense_name === subCategory
                 );
-
                 if (!selectedPolicy) return null;
-
                 return (
-                  <View style={styles.policyContainer}>
-                    <Text style={styles.policyItem}>Amount Limit: ₹{selectedPolicy.policy_amount}</Text>
-                    <Text style={styles.policyItem}>Frequency: {selectedPolicy.frequency}</Text>
-                    <Text style={styles.policyItem}>Max Claims: {selectedPolicy.no_of_times_claim}</Text>
-                    <Text style={styles.policyItem}>Valid From: {selectedPolicy.effective_from}</Text>
-                    <Text style={styles.policyItem}>Valid To: {selectedPolicy.effective_end}</Text>
+                  <View style={[styles.policyContainer, { backgroundColor: theme.background }]}>
+                    <Text style={[styles.policyItem, { color: theme.text }]}>Amount Limit: ₹{selectedPolicy.policy_amount}</Text>
+                    <Text style={[styles.policyItem, { color: theme.text }]}>Frequency: {selectedPolicy.frequency}</Text>
+                    <Text style={[styles.policyItem, { color: theme.text }]}>Max Claims: {selectedPolicy.no_of_times_claim}</Text>
+                    <Text style={[styles.policyItem, { color: theme.text }]}>Valid From: {selectedPolicy.effective_from}</Text>
+                    <Text style={[styles.policyItem, { color: theme.text }]}>Valid To: {selectedPolicy.effective_end}</Text>
                     {selectedPolicy.descriptions && selectedPolicy.descriptions !== 'null' && (
-                      <Text style={styles.policyItem}>Description: {selectedPolicy.descriptions}</Text>
+                      <Text style={[styles.policyItem, { color: theme.text }]}>Description: {selectedPolicy.descriptions}</Text>
                     )}
                   </View>
                 );
@@ -213,27 +208,28 @@ const NewClaimRequestScreen = ({ navigation }) => {
           )}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Amount</Text>
-            <View style={styles.amountContainer}>
+            <Text style={[styles.label, { color: theme.text }]}>Amount</Text>
+            <View style={[styles.amountContainer, { borderColor: theme.borderColor }]}>
               <TextInput
-                style={styles.amountInput}
+                style={[styles.amountInput, { color: theme.text }]}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="numeric"
                 placeholder="0"
+                placeholderTextColor={theme.secondaryColor}
               />
-              <Text style={styles.currencyText}>INR</Text>
+              <Text style={[styles.currencyText, { color: theme.text }]}>INR</Text>
             </View>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Date</Text>
+            <Text style={[styles.label, { color: theme.text }]}>Date</Text>
             <TouchableOpacity
-              style={styles.datePickerButton}
+              style={[styles.datePickerButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
               onPress={() => setShowDatePicker(true)}
             >
-              <Text style={styles.dateText}>{formatDate(date)}</Text>
-              <Icon name="calendar-outline" size={20} color="#333" />
+              <Text style={[styles.dateText, { color: theme.text }]}>{formatDate(date)}</Text>
+              <Icon name="calendar-outline" size={20} color={theme.text} />
             </TouchableOpacity>
             {showDatePicker && (
               <DateTimePicker
@@ -246,19 +242,27 @@ const NewClaimRequestScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Upload Bill</Text>
-            <TouchableOpacity style={styles.uploadButton}>
-              <Icon name="cloud-upload-outline" size={24} color="#333" />
-              <Text style={styles.uploadText}>Upload Bills</Text>
-            </TouchableOpacity>
+            <Text style={[styles.label, { color: theme.text }] } >Upload Bill</Text>
+            <TouchableOpacity style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}onPress={handleUploadBill}>
+              <Icon name="cloud-upload-outline" size={24} color={theme.text} />
+              </TouchableOpacity>
+              {/* <TouchableOpacity onPress={handleUploadBill}>
+              <Text style={[styles.uploadText, { color: theme.text }]}>Upload Bills</Text>
+            </TouchableOpacity> */}
           </View>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+            <TouchableOpacity
+              style={[styles.cancelButton, { borderColor: theme.borderColor}]}
+              onPress={handleCancel}
+            >
+              <Text style={[styles.cancelButtonText, { color: theme.text }]}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-              <Text style={styles.submitButtonText}>Submit</Text>
+            <TouchableOpacity
+              style={[styles.submitButton, { backgroundColor: theme.buttonBg }]}
+              onPress={handleSubmit}
+            >
+              <Text style={[styles.submitButtonText, { color: theme.buttonTextColor }]}>Submit</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -376,3 +380,5 @@ const styles = StyleSheet.create({
 });
 
 export default NewClaimRequestScreen;
+
+

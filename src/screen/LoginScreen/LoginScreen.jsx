@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-
+import { useTheme } from "../../theme/useTheme";
+import { BASEPATH } from "../config";
 
 const LoginScreen = ({ navigation }) => {
+  const { theme } = useTheme();
   const [username, setUsername] = useState('');
   const [companyname, setCompanyname] = useState('');
   const [password, setPassword] = useState('');
@@ -15,55 +17,55 @@ const LoginScreen = ({ navigation }) => {
   const handlePasswordChange = (text) => setPassword(text);
   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
-  const handleLogin = () => {
-    if (username && companyname && password) {
-      navigation.replace('MainTabs');
-    } else {
-      Alert.alert("Please enter all credentials");
-    }
-  };
+  // const handleLogin = () => {
+  //   if (username && companyname && password) {
+  //     navigation.replace('MainTabs');
+  //   } else {
+  //     Alert.alert("Please enter all credentials");
+  //   }
+  // };
 
   const handleForgetPassword = () => {
     navigation.navigate('ForgetPassword');
   };
-  // const handleLogin=async()=>{ 
-  //   if (username && companyname && password) {
-  //   const formData = {
-  //     "company_id" :companyname,
-  //     "emp_id" : username,
-  //     "password" : password, 
-  // }
-  //   try{
-  //     const response = await axios({
-  //       method:"post",
-  //       url:`http://192.168.0.23:8081/v1/expensez/login/`,
-  //       data: formData,
-  //       headers: {
-  //         'Content-Type': 'application/json',  
-  //       }
-  //     }).then((res)=>{
-  //       console.log('Response:--->>>>>>>>>>>>>>>>>>>>>>>>>>>>', res.data);
-  //       navigation.replace('MainTabs');
-  //     }).catch(()=>{
-  //       Alert.alert("Something went wrong");
-  //     })
+  const handleLogin=async()=>{ 
+    if (username && companyname && password) {
+    const formData = {
+      "company_id" :companyname,
+      "emp_id" : username,
+      "password" : password, 
+  }
+    try{
+      const response = await axios({
+        method:"post",
+        url:`${BASEPATH}v1/expensez/login/`,
+        data: formData,
+        headers: {
+          'Content-Type': 'application/json',  
+        }
+      }).then((res)=>{
+        console.log('Response:--->>>>>>>>>>>>>>>>>>>>>>>>>>>>', res.data);
+        navigation.replace('MainTabs');
+      }).catch(()=>{
+        Alert.alert("Something went wrong");
+      })
       
-  //     // if(response && response?.data && response?.data?.status== 200){
-  //     //   navigation.replace('MainTabs');
-  //     // }
-  //   }
-  //   catch(error){
-  //     console.error("Error:",error);
-  //   }
-  // }else {
-  //       Alert.alert("Please enter all credentials");
-  //     }
+      // if(response && response?.data && response?.data?.status== 200){
+      //   navigation.replace('MainTabs');
+      // }
+    }
+    catch(error){
+      console.error("Error:",error);
+    }
+  }else {
+        Alert.alert("Please enter all credentials");
+      }
      
-  //     }
+      }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome!</Text>
+    <View style={[styles.container, {backgroundColor:theme.background}]}>
+      <Text style={[styles.title, {color:theme.text}]}>Welcome!</Text>
 
       <TextInput
         style={styles.input}
@@ -96,8 +98,8 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.link}>Forget Password?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity style={[styles.button,{backgroundColor:theme.buttonBg}]} onPress={handleLogin}>
+        <Text style={[styles.buttonText,{color:theme.buttonTextColor}]}>Login</Text>
       </TouchableOpacity>
     </View>
   );
