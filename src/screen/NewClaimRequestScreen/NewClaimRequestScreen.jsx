@@ -7,9 +7,10 @@ import axios from 'axios';
 import { useTheme } from '../../theme/useTheme';
 import { BASEPATH } from '../config';
 import {launchImageLibrary} from 'react-native-image-picker';
+import { PermissionsAndroid, Platform, Linking } from 'react-native';
+
 const NewClaimRequestScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const [scannedImage, setScannedImage] = useState(null);
   const [mainCategory, setMainCategory] = useState(null);
   const [subCategory, setSubCategory] = useState(null);
   const [amount, setAmount] = useState(null);
@@ -18,6 +19,17 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [mainCategories, setMainCategories] = useState([]);
   const [policyMap, setPolicyMap] = useState({});
 
+ const [todayOpen, setTodayOpen] = useState(false);
+ const[statusOpen, setStatusOpen] = useState(false);
+ const[amountOpen, setAmountOpen] = useState(false);
+
+ const[todayValue, setTodayValue] = useState(null);
+ const[statusValue, setStatusValue] = useState(null);
+ const[amountValue, setAmountValue] = useState(null);
+
+ const[todayItems, setTodayItems] = useState([
+  {label:'All'}
+ ])
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -91,50 +103,97 @@ const NewClaimRequestScreen = ({ navigation }) => {
   
 
   const handleUploadBill = async () => {
-    let isMounted = true;  // Mounted flag for safety
+    const permissionGranted = await requestGalleryPermission();
   
-    try {
-      // Launch image library to allow the user to select an image from the device
-      const result = await launchImageLibrary({
-        mediaType: 'photo',       // Specify that you want to pick a photo
-        includeBase64: true,      // Include base64-encoded string (optional)
-      });
-  
-      if (!isMounted) return;  // Check if the component is still mounted
-  
-      if (result.didCancel) {
-        console.log('User cancelled image picker');
-        return;
-      }
-  
-      // Check if assets exist in the result
-      if (result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];  // Get the first selected image
-  
-        console.log('Image selected: ', asset.uri);  // URI of the selected image
-  
-        // You can now upload the image or perform any other operations you need
-        // You can use asset.uri to get the path of the image on the device
-      } else {
-        Alert.alert('Error', 'No image selected.');
-      }
-  
-    } catch (error) {
-      console.error('Upload Error:', error);
-      if (isMounted) {
-        Alert.alert('Error', 'Something went wrong while selecting or uploading the image.');
-      }
+    if (!permissionGranted) {
+      Alert.alert(
+        'Permission Denied',
+        'Please enable photo access in settings to upload bills.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ],
+      );
+      return;
     }
   
-    // Cleanup to handle component unmounting
-    useEffect(() => {
-      return () => {
-        isMounted = false;
-      };
-    }, []);
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        includeBase64: true,
+        quality: 0.8,
+      },
+      async (response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorCode) {
+          console.log('Image Picker Error:', response.errorMessage);
+          Alert.alert('Error', 'Failed to pick image');
+        } else {
+          const base64Image = response.assets?.[0]?.base64;
+  
+          if (base64Image) {
+            try {
+              const payload = {
+                company_id: 'your_company_id',
+                expense_head: mainCategory,
+                subexpense_head: subCategory,
+                document: [`data:image/jpeg;base64,${base64Image}`],
+              };
+  
+              await axios.post(`${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`);
+              Alert.alert('Success', 'Image uploaded successfully');
+            } catch (err) {
+              console.error(err);
+              Alert.alert('Upload failed', 'Please try again later.');
+            }
+          }
+        }
+      },
+    );
   };
-  
-  
+
+// const requestGalleryPermission = async () => {
+//   if (Platform.OS === 'android') {
+//     try {
+//       const granted = await PermissionsAndroid.request(
+//         PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+//         {
+//           title: "Photo Access Permission",
+//           message: "We need access to your photos to upload the bill.",
+//           buttonPositive: "OK",
+//           buttonNegative: "Cancel"
+//         }
+//       );
+//       return granted === PermissionsAndroid.RESULTS.GRANTED;
+//     } catch (err) {
+//       console.warn("Permission error: ", err);
+//       return false;
+//     }
+//   }
+//   return true; // iOS handles this via Info.plist
+// };
+
+const requestGalleryPermission = async () => {
+  if (Platform.OS === 'android') {
+    const permission = Platform.Version >= 33
+      ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+      : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+
+    const alreadyGranted = await PermissionsAndroid.check(permission);
+    if (alreadyGranted) return true;
+
+    const granted = await PermissionsAndroid.request(permission, {
+      title: 'Photo Access Needed',
+      message: 'We need access to your gallery to upload the bill.',
+      buttonPositive: 'OK',
+    });
+
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return true; // iOS handles permissions differently
+};
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>

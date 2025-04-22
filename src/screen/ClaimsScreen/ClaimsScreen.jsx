@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput } from 'react-native';
+import {View,Text,StyleSheet,TouchableOpacity,SafeAreaView,TextInput,FlatList,} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CheckBox from '@react-native-community/checkbox';
-import { useTheme } from '../../theme/useTheme';  
+import { useTheme } from '../../theme/useTheme';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const ClaimItem = ({ category, date, amount, status }) => {
   const { theme } = useTheme();
@@ -23,7 +24,7 @@ const ClaimItem = ({ category, date, amount, status }) => {
         disabled={false}
         value={isSelected}
         onValueChange={setSelection}
-        style={[styles.checkbox,{color:theme.text}]}
+        style={[styles.checkbox, { color: theme.text }]}
       />
       <View style={styles.claimContent}>
         <View style={styles.claimHeader}>
@@ -40,18 +41,63 @@ const ClaimItem = ({ category, date, amount, status }) => {
 };
 
 const ClaimsScreen = ({ navigation }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const { theme } = useTheme();  // Access theme here
+  const { theme } = useTheme();
 
-  const claims = [
-    { id: '1', category: 'Travel', date: '25/03/2025', amount: 120.00, status: 'Approved' },
-    { id: '2', category: 'Food', date: '25/03/2025', amount: 2000.00, status: 'Pending' },
-    { id: '3', category: 'Purchase', date: '25/03/2025', amount: 600.00, status: 'Rejected' }
+  const allClaims = [
+    { id: '1', category: 'Travel', date: '25/03/2025', amount: 120.0, status: 'Approved' },
+    { id: '2', category: 'Food', date: '25/03/2025', amount: 2000.0, status: 'Pending' },
+    { id: '3', category: 'Purchase', date: '25/03/2025', amount: 600.0, status: 'Rejected' },
   ];
+
+  const [query, setQuery] = useState('');
+  const [claims, setClaims] = useState(allClaims);
+
+const [todayOpen, setTodayOpen] = useState(false);
+ const[statusOpen, setStatusOpen] = useState(false);
+ const[amountOpen, setAmountOpen] = useState(false);
+
+ const[todayValue, setTodayValue] = useState(null);
+ const[statusValue, setStatusValue] = useState(null);
+ const[amountValue, setAmountValue] = useState(null);
+
+ const[todayItems, setTodayItems] = useState([
+  {label:'All', value:'all'}
+ ]);
+ const[statusItems, setStatusItems] = useState([
+  {label:'Approved',value:'approved'},
+  {label:'Pending', value:'pending'},
+  {label:'Rejected', value:'rejected'}
+ ]);
+
+ const[amountItems, setAmountItems] = useState([
+  {label:'More than 1000', value:'1000'},
+  {label:'More than 5000', value:'5000'},
+  {label:'More than 10000', value:'10000'}
+ ])
+
 
   const handleNewClaim = () => {
     navigation.navigate('NewClaimRequest');
   };
+
+  const handleSearch = (text) => {
+    setQuery(text);
+    const filtered = allClaims.filter((item) =>
+      item.category.toLowerCase().includes(text.toLowerCase())
+    );
+    setClaims(filtered);
+  };
+  const handleTodayFilter = () => {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const yyyy = today.getFullYear();
+    const formattedToday = `${dd}/${mm}/${yyyy}`;
+  
+    const filtered = allClaims.filter(claim => claim.date === formattedToday);
+    setClaims(filtered);
+  };
+  
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -68,44 +114,51 @@ const ClaimsScreen = ({ navigation }) => {
           <TextInput
             style={[styles.searchInput, { color: theme.text }]}
             placeholder="Search Claims"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            value={query}
+            onChangeText={handleSearch}
             placeholderTextColor={theme.text}
           />
-        </View>
-        <View style={styles.filterContainer}>
-          <TouchableOpacity style={styles.filterButton}>
-            <Icon name="filter" size={20} color="#7E8356" />
-          </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.segmentContainer}>
-        <TouchableOpacity style={styles.segmentButton}>
+        <TouchableOpacity style={styles.segmentButton} onPress={handleTodayFilter}>
           <Text style={[styles.segmentText, { color: theme.text }]}>Today</Text>
         </TouchableOpacity>
+        <View style={{ zIndex: 3000, marginBottom: 10 }}>
+  <DropDownPicker
+    open={todayOpen}
+    value={todayValue}
+    items={todayItems}
+    setOpen={setTodayOpen}
+    setValue={setTodayValue}
+    setItems={setTodayItems}
+    placeholder="Filter by Date"
+    zIndex={3000}
+    zIndexInverse={1000}
+  />
+</View>
         <TouchableOpacity style={styles.segmentButton}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Approved</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.segmentButton}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Filed</Text>
+          <Text style={[styles.segmentText, { color: theme.text }]}>Status</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.segmentButton}>
           <Text style={[styles.segmentText, { color: theme.text }]}>Amount</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.claimsList}>
-        {claims.map(claim => (
+      <FlatList
+        data={claims}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
           <ClaimItem
-            key={claim.id}
-            category={claim.category}
-            date={claim.date}
-            amount={claim.amount}
-            status={claim.status}
+            category={item.category}
+            date={item.date}
+            amount={item.amount}
+            status={item.status}
           />
-        ))}
-      </ScrollView>
+        )}
+        contentContainerStyle={styles.claimsList}
+      />
 
       <TouchableOpacity style={styles.addClaimButton} onPress={handleNewClaim}>
         <Text style={styles.addClaimText}>Add New Claim</Text>
@@ -155,9 +208,10 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     paddingHorizontal: 10,
-    width: '80%',
+    width: '90%',
     borderColor: 'gray',
     borderWidth: 1,
+    marginLeft:20,
   },
   searchIcon: {
     marginRight: 10,
@@ -175,6 +229,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     height: 50,
+    justifyContent: 'center',
   },
   segmentContainer: {
     flexDirection: 'row',
@@ -192,7 +247,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   claimsList: {
-    flex: 1,
     padding: 10,
   },
   categoryText: {
