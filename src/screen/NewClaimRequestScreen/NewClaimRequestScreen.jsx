@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Image, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -18,18 +20,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [mainCategories, setMainCategories] = useState([]);
   const [policyMap, setPolicyMap] = useState({});
-
- const [todayOpen, setTodayOpen] = useState(false);
- const[statusOpen, setStatusOpen] = useState(false);
- const[amountOpen, setAmountOpen] = useState(false);
-
- const[todayValue, setTodayValue] = useState(null);
- const[statusValue, setStatusValue] = useState(null);
- const[amountValue, setAmountValue] = useState(null);
-
- const[todayItems, setTodayItems] = useState([
-  {label:'All'}
- ])
+  const [showPolicyDetails, setShowPolicyDetails] = useState(false);
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -44,13 +35,21 @@ const NewClaimRequestScreen = ({ navigation }) => {
     return `${day}/${month}/${year}`;
   };
 
+  const [apiData, setApiData] = useState({
+    amount: '',
+    policyMap: {},
+    expense_head: '',  // Main expense category from OCR
+    subexpense_head: '',  // Sub expense category from OCR
+    date: '',  // Date from OCR
+    // other fields from the API as needed
+  });
+  
+
   const handleCancel = () => {
     navigation.navigate('Claims');
   };
 
-  const handleSubmit = () => {
-    navigation.navigate('SubmitClaim');
-  };
+ 
 
 
   // useEffect(() => {
@@ -101,7 +100,60 @@ const NewClaimRequestScreen = ({ navigation }) => {
     fetchPolicies();
   }, []);
   
+  
+  
+  // const handleUploadBill = async () => {
+  //   const permissionGranted = await requestGalleryPermission();
+  
+  //   if (!permissionGranted) {
+  //     Alert.alert(
+  //       'Permission Denied',
+  //       'Please enable photo access in settings to upload bills.',
+  //       [
+  //         { text: 'Cancel', style: 'cancel' },
+  //         { text: 'Open Settings', onPress: () => Linking.openSettings() },
+  //       ],
+  //     );
+  //     return;
+  //   }
+  
+  //   launchImageLibrary(
+  //     {
+  //       mediaType: 'photo',
+  //       includeBase64: true,
+  //       quality: 0.8,
+  //     },
+  //     async (response) => {
+  //       if (response.didCancel) {
+  //         console.log('User cancelled image picker');
+  //       } else if (response.errorCode) {
+  //         console.log('Image Picker Error:', response.errorMessage);
+  //         Alert.alert('Error', 'Failed to pick image');
+  //       } else {
+  //         const base64Image = response.assets?.[0]?.base64;
+  
+  //         if (base64Image) {
+  //           try {
+  //             const payload = {
+  //               company_id: 'your_company_id',
+  //               expense_head: mainCategory,
+  //               subexpense_head: subCategory,
+  //               document: [`data:image/jpeg;base64,${base64Image}`],
+  //             };
+  
+  //             await axios.post(`${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`);
+  //             Alert.alert('Success', 'Image uploaded successfully');
+  //           } catch (err) {
+  //             console.error(err);
+  //             Alert.alert('Upload failed', 'Please try again later.');
+  //           }
+  //         }
+  //       }
+  //     },
+  //   );
+  // };
 
+  // 
   const handleUploadBill = async () => {
     const permissionGranted = await requestGalleryPermission();
   
@@ -136,13 +188,31 @@ const NewClaimRequestScreen = ({ navigation }) => {
             try {
               const payload = {
                 company_id: 'your_company_id',
-                expense_head: mainCategory,
-                subexpense_head: subCategory,
+                expense_head: mainCategory, // already set by the user
+                subexpense_head: subCategory, // already set by the user
                 document: [`data:image/jpeg;base64,${base64Image}`],
               };
   
-              await axios.post(`${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`);
-              Alert.alert('Success', 'Image uploaded successfully');
+              // Trigger the API to process the image and get data
+              const apiResponse = await axios.post(
+                `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
+                payload,
+              );
+  
+              const data = apiResponse.data;
+  
+              // Set the populated data from the API (only update OCR-related fields)
+              setApiData((prevApiData) => ({
+                ...prevApiData,
+                amount: data.amount || prevApiData.amount,
+                policyMap: data.policyMap || prevApiData.policyMap,
+                expense_head: data.expense_head || prevApiData.expense_head,
+                subexpense_head: data.subexpense_head || prevApiData.subexpense_head,
+                date: data.date || prevApiData.date,
+                // Add any other fields from the API that you want to populate
+              }));
+  console.log(data);
+              Alert.alert('Success', 'Image uploaded and data populated');
             } catch (err) {
               console.error(err);
               Alert.alert('Upload failed', 'Please try again later.');
@@ -152,6 +222,8 @@ const NewClaimRequestScreen = ({ navigation }) => {
       },
     );
   };
+  
+  
 
 // const requestGalleryPermission = async () => {
 //   if (Platform.OS === 'android') {
@@ -193,6 +265,19 @@ const requestGalleryPermission = async () => {
   }
   return true; // iOS handles permissions differently
 };
+const handleSubmit = () => {
+  if (!mainCategory || !subCategory || !amount) {
+    return Alert.alert("Missing Fields", "Please fill all the fields before submitting.");
+  }
+
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    return Alert.alert("Invalid Amount", "Please enter a valid amount greater than 0.");
+  }
+
+  navigation.navigate('SubmitClaim');
+};
+
 
 
   return (
@@ -202,13 +287,14 @@ const requestGalleryPermission = async () => {
           <Text style={[styles.headerTitle, { color: theme.text }]}>New Claim Request</Text>
         </View>
 
-        <View style={styles.formContainer}>
-          <View style={styles.inputGroup}>
+        {/* <View style={styles.formContainer}>
+          <View style={[styles.inputGroup]}>
             <Text style={[styles.label, { color: theme.text }]}>Main Expense Category</Text>
             <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
               <Picker
                 selectedValue={mainCategory}
                 style={[styles.picker, { color: theme.text }]}
+                
                 onValueChange={(value) => {
                   setMainCategory(value);
                   setSubCategory(null);
@@ -239,13 +325,61 @@ const requestGalleryPermission = async () => {
                   ))}
                 </Picker>
               </View> 
+            </View> */}
+            <View style={styles.formContainer}>
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: theme.text }]}>Main Expense Category</Text>
+            <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
+              <Picker
+                selectedValue={mainCategory}
+                style={[styles.picker, { color: theme.text }]}
+                dropdownIconColor={theme.text}
+                onValueChange={(value) => {
+                  setMainCategory(value);
+                  setSubCategory(null);
+                }}>
+                <Picker.Item label="Select Main Category" value={null} />
+                {mainCategories.map(item => (
+                  <Picker.Item key={item.id} label={item.name} value={item.name} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+
+          {mainCategory && (
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: theme.text }]}>Sub Expense Category</Text>
+              <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
+                <Picker
+                  selectedValue={subCategory}
+                  style={[styles.picker, { color: theme.text }]}
+                  dropdownIconColor={theme.text}
+                  onValueChange={setSubCategory}>
+                  <Picker.Item label="Select Subcategory" value={null} />
+                  {policyMap[mainCategory]?.map((item, index) => (
+                    <Picker.Item key={index} label={item.sub_expense_name} value={item.sub_expense_name} />
+                  ))}
+                </Picker>
+              </View>
             </View>
           )}
+          
 
           {subCategory && (
             <View style={[styles.inputGroup, { paddingTop: 10 }]}>
-              <Text style={[styles.label, { color: theme.text }]}>Policy Details</Text>
-              {(() => {
+              {/* <Text style={[styles.label, { color: theme.text }]}>Policy Details</Text> */}
+              <View style={styles.policyHeader}>
+  <Text style={[styles.label, { color: theme.text }]}>View Policy</Text>
+  <TouchableOpacity onPress={() => setShowPolicyDetails(!showPolicyDetails)}>
+    <Icon
+      name={showPolicyDetails ? "eye-off-outline" : "eye-outline"}
+      size={20}
+      color={theme.text}
+    />
+  </TouchableOpacity>
+</View>
+
+              {showPolicyDetails && (() => {
                 const selectedPolicy = policyMap[mainCategory]?.find(
                   (item) => item.sub_expense_name === subCategory
                 );
@@ -265,8 +399,8 @@ const requestGalleryPermission = async () => {
               })()}
             </View>
           )}
-
-          <View style={styles.inputGroup}>
+        <View style={styles.row}>
+          <View style={[styles.inputGroup,styles.halfInput]}>
             <Text style={[styles.label, { color: theme.text }]}>Amount</Text>
             <View style={[styles.amountContainer, { borderColor: theme.borderColor }]}>
               <TextInput
@@ -281,7 +415,7 @@ const requestGalleryPermission = async () => {
             </View>
           </View>
 
-          <View style={styles.inputGroup}>
+          <View style={[styles.inputGroup,styles.halfInput]}>
             <Text style={[styles.label, { color: theme.text }]}>Date</Text>
             <TouchableOpacity
               style={[styles.datePickerButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
@@ -299,16 +433,55 @@ const requestGalleryPermission = async () => {
               />
             )}
           </View>
-
-          <View style={styles.inputGroup}>
+          </View>
+          {/* <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.text }] } >Upload Bill</Text>
             <TouchableOpacity style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}onPress={handleUploadBill}>
               <Icon name="cloud-upload-outline" size={24} color={theme.text} />
               </TouchableOpacity>
-              {/* <TouchableOpacity onPress={handleUploadBill}>
-              <Text style={[styles.uploadText, { color: theme.text }]}>Upload Bills</Text>
-            </TouchableOpacity> */}
-          </View>
+              
+          </View> */}
+          {/* <View style={styles.inputGroup}>
+ 
+  <Text style={[styles.label, { color: theme.text }] } >Upload Bill</Text>
+            <TouchableOpacity style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}onPress={handleUploadBill}>
+              <Icon name="cloud-upload-outline" size={24} color={theme.text} />
+              </TouchableOpacity>
+
+ 
+  {apiData.amount && (
+    <View style={styles.apiDataContainer}>
+      <Text>Amount: {apiData.amount}</Text>
+      {apiData.policyMap && apiData.policyMap.details && (
+        <Text>Policy Details: {apiData.policyMap.details}</Text>
+      )}
+      
+    </View>
+  )}
+
+</View> */}
+<View style={styles.inputGroup}>
+  <Text style={[styles.label, { color: theme.text }]}>Upload Bill</Text>
+  <TouchableOpacity 
+    style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
+    onPress={handleUploadBill}
+  >
+    <Icon name="cloud-upload-outline" size={24} color={theme.text} />
+  </TouchableOpacity>
+
+  {/* Conditionally render the populated fields after image upload */}
+  {apiData.expense_head && (
+    <View style={{ padding: 10, backgroundColor: '#f4f4f4', borderRadius: 10, marginVertical: 10 }}>
+      <Text style={{ fontWeight: 'bold' }}>Extracted Information:</Text>
+      <Text>Main Expense: {apiData.expense_head}</Text>
+      <Text>Sub Expense: {apiData.subexpense_head}</Text>
+      <Text>Date: {apiData.date}</Text>
+      <Text>Amount: {apiData.amount}</Text>
+    </View>
+  )}
+</View>
+
+
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -344,29 +517,37 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#000' },
-  formContainer: { padding: 15 },
-  scanButton: {
-    backgroundColor: '#f9f9e0',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginVertical: 20,
-    borderWidth: 1,
-    borderColor: '#e0e0b0',
+  headerTitle: { 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    color: '#000' 
   },
-  scanButtonText: { color: '#333', fontWeight: '500' },
-  scannedImage: { width: 300, height: 400, marginTop: 20, borderRadius: 8 },
-  orText: { textAlign: 'center', color: '#666', marginVertical: 10 },
-  inputGroup: { marginBottom: 15 },
-  label: { fontSize: 14, color: '#333', marginBottom: 5 },
+  formContainer: { 
+    padding: 15 
+  },
+ 
+  inputGroup: {
+     marginBottom: 10,
+     },
+  label: { 
+    fontSize: 14, 
+    color: '#333', 
+    marginBottom: 5 
+  },
   pickerContainer: {
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#fff',
   },
-  picker: { flex: 1, height: 55 },
+  picker: { 
+    flex: 1,
+    height: 50 
+  },
+  policyContainer:{
+    flexDirection:'row',
+    justifyContent:'space-around'
+  },
   amountContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -375,6 +556,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
   },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+    },
+  halfInput: {
+    flex: 1,
+  },
+  
   amountInput: { flex: 1, height: 45 },
   currencyText: { color: '#666', fontWeight: '500' },
   datePickerButton: {
@@ -439,5 +629,6 @@ const styles = StyleSheet.create({
 });
 
 export default NewClaimRequestScreen;
+
 
 

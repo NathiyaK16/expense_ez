@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {View,Text,StyleSheet,TouchableOpacity,SafeAreaView,TextInput,FlatList,} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CheckBox from '@react-native-community/checkbox';
@@ -24,7 +24,7 @@ const ClaimItem = ({ category, date, amount, status }) => {
         disabled={false}
         value={isSelected}
         onValueChange={setSelection}
-        style={[styles.checkbox, { color: theme.text }]}
+        style={styles.checkbox}
       />
       <View style={styles.claimContent}>
         <View style={styles.claimHeader}>
@@ -47,57 +47,71 @@ const ClaimsScreen = ({ navigation }) => {
     { id: '1', category: 'Travel', date: '25/03/2025', amount: 120.0, status: 'Approved' },
     { id: '2', category: 'Food', date: '25/03/2025', amount: 2000.0, status: 'Pending' },
     { id: '3', category: 'Purchase', date: '25/03/2025', amount: 600.0, status: 'Rejected' },
+    { id: '4', category: 'Supplies', date: '25/03/2025', amount: 8000.0, status: 'Approved' },
   ];
 
-  const [query, setQuery] = useState('');
   const [claims, setClaims] = useState(allClaims);
+  const [query, setQuery] = useState('');
 
-const [todayOpen, setTodayOpen] = useState(false);
- const[statusOpen, setStatusOpen] = useState(false);
- const[amountOpen, setAmountOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [amountOpen, setAmountOpen] = useState(false);
 
- const[todayValue, setTodayValue] = useState(null);
- const[statusValue, setStatusValue] = useState(null);
- const[amountValue, setAmountValue] = useState(null);
+  const [dateValue, setDateValue] = useState(null);
+  const [statusValue, setStatusValue] = useState(null);
+  const [amountValue, setAmountValue] = useState(null);
 
- const[todayItems, setTodayItems] = useState([
-  {label:'All', value:'all'}
- ]);
- const[statusItems, setStatusItems] = useState([
-  {label:'Approved',value:'approved'},
-  {label:'Pending', value:'pending'},
-  {label:'Rejected', value:'rejected'}
- ]);
-
- const[amountItems, setAmountItems] = useState([
-  {label:'More than 1000', value:'1000'},
-  {label:'More than 5000', value:'5000'},
-  {label:'More than 10000', value:'10000'}
- ])
-
-
-  const handleNewClaim = () => {
-    navigation.navigate('NewClaimRequest');
-  };
+  const dateItems = [
+    {label: 'All', value: 'all' }, 
+    { label: 'Today', value: 'today' }
+    ];
+  const statusItems = [
+    { label: 'All', value: 'all' },
+    { label: 'Approved', value: 'Approved' },
+    { label: 'Pending', value: 'Pending' },
+    { label: 'Rejected', value: 'Rejected' },
+  ];
+  const amountItems = [
+    { label: 'All', value:'all' },
+    { label: 'More than 1000', value: 1000 },
+    { label: 'More than 5000', value: 5000 },
+    { label: 'More than 10000', value: 10000 },
+  ];
 
   const handleSearch = (text) => {
     setQuery(text);
-    const filtered = allClaims.filter((item) =>
+    const filtered = allClaims.filter(item =>
       item.category.toLowerCase().includes(text.toLowerCase())
     );
     setClaims(filtered);
   };
-  const handleTodayFilter = () => {
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const yyyy = today.getFullYear();
-    const formattedToday = `${dd}/${mm}/${yyyy}`;
+
   
-    const filtered = allClaims.filter(claim => claim.date === formattedToday);
+  useEffect(() => {
+    let filtered = [...allClaims];
+  
+    if (dateValue && dateValue !== 'all') {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      const formattedToday = `${dd}/${mm}/${yyyy}`;
+      filtered = filtered.filter(item => item.date === formattedToday);
+    }
+  
+    if (statusValue && statusValue !== 'all') {
+      filtered = filtered.filter(item => item.status === statusValue);
+    }
+  
+    if (amountValue && amountValue !== 'all') {
+      filtered = filtered.filter(item => item.amount > amountValue);
+    }
+  
     setClaims(filtered);
-  };
+  }, [dateValue, statusValue, amountValue]);
   
+
+  const handleNewClaim = () => navigation.navigate('NewClaimRequest');
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -121,29 +135,66 @@ const [todayOpen, setTodayOpen] = useState(false);
         </View>
       </View>
 
-      <View style={styles.segmentContainer}>
-        <TouchableOpacity style={styles.segmentButton} onPress={handleTodayFilter}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Today</Text>
-        </TouchableOpacity>
-        <View style={{ zIndex: 3000, marginBottom: 10 }}>
-  <DropDownPicker
-    open={todayOpen}
-    value={todayValue}
-    items={todayItems}
-    setOpen={setTodayOpen}
-    setValue={setTodayValue}
-    setItems={setTodayItems}
-    placeholder="Filter by Date"
-    zIndex={3000}
-    zIndexInverse={1000}
-  />
-</View>
-        <TouchableOpacity style={styles.segmentButton}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Status</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.segmentButton}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Amount</Text>
-        </TouchableOpacity>
+      <View style={styles.filterRow}>
+        <View style={styles.dropdownWrapper}>
+        <DropDownPicker
+            open={dateOpen}
+            value={null}
+            items={dateItems}
+            setOpen={setDateOpen}
+            setValue={setDateValue}
+            setItems={() => {}}
+            placeholder="Date"
+            style={styles.dropdown}
+            textStyle={styles.dropdownText}
+            selectedItemLabelStyle={{ display: 'none' }}
+            dropDownContainerStyle={styles.dropdownContainer}
+            arrowIconStyle={styles.arrowIcon}
+            zIndex={2000}
+            zIndexInverse={2000}
+          />
+       
+
+
+        </View>
+
+        <View style={styles.dropdownWrapper}>
+          <DropDownPicker
+            open={statusOpen}
+            value={null}
+            items={statusItems}
+            setOpen={setStatusOpen}
+            setValue={setStatusValue}
+            setItems={() => {}}
+            placeholder="Status"
+            style={styles.dropdown}
+            textStyle={styles.dropdownText}
+            selectedItemLabelStyle={{ display: 'none' }}
+            dropDownContainerStyle={styles.dropdownContainer}
+            arrowIconStyle={styles.arrowIcon}
+            zIndex={2000}
+            zIndexInverse={2000}
+          />
+        </View>
+
+        <View style={styles.dropdownWrapper}>
+          <DropDownPicker
+            open={amountOpen}
+            value={null}
+            items={amountItems}
+            setOpen={setAmountOpen}
+            setValue={setAmountValue}
+            setItems={() => {}}
+            placeholder="Amount"
+            style={styles.dropdown}
+            textStyle={styles.dropdownText}
+            selectedItemLabelStyle={{ display: 'none' }}
+            dropDownContainerStyle={styles.dropdownContainer}
+            arrowIconStyle={styles.arrowIcon}
+            zIndex={1000}
+            zIndexInverse={3000}
+          />
+        </View>
       </View>
 
       <FlatList
@@ -211,7 +262,7 @@ const styles = StyleSheet.create({
     width: '90%',
     borderColor: 'gray',
     borderWidth: 1,
-    marginLeft:20,
+    marginLeft: 20,
   },
   searchIcon: {
     marginRight: 10,
@@ -219,32 +270,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: 50,
-  },
-  filterButton: {
-    padding: 10,
-  },
-  filterContainer: {
-    borderColor: '#7E8356',
-    backgroundColor: '#f9f9e0',
-    borderWidth: 1,
-    borderRadius: 5,
-    height: 50,
-    justifyContent: 'center',
-  },
-  segmentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-  },
-  segmentButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 10,
-  },
-  segmentText: {
-    color: '#666',
   },
   claimsList: {
     padding: 10,
@@ -281,6 +306,33 @@ const styles = StyleSheet.create({
   addClaimText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  filterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    zIndex: 1000,
+    marginBottom: 10,
+  },
+  dropdownWrapper: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  dropdown: {
+    borderColor: '#888',
+    backgroundColor: '#1e1e1e',
+    minHeight: 40,
+  },
+  dropdownText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  dropdownContainer: {
+    backgroundColor: '#2a2a2a',
+    borderColor: '#888',
+  },
+  arrowIcon: {
+    tintColor: '#fff',
   },
 });
 
