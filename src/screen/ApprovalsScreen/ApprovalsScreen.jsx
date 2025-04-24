@@ -1,25 +1,44 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import CheckBox from '@react-native-community/checkbox';
 import { useTheme } from '../../theme/useTheme';  
 
 const ApprovalsScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const [isSelected, setSelection] = useState(false);
-
-  
-
-
-
-
+  const [approvals, setApprovals] = useState(allApprovals);
   const [searchQuery, setSearchQuery] = useState('');
  
+  const[dateOpen, setDateOpen] = useState(false);
+  const[statusOpen, setStatusOpen] = useState(false);
+  const[amountOpen, setAmountOpen] = useState(false);
 
- 
+  const[dateValue, setDateValue] = useState(null);
+  const[statusValue, setStatusValue] = useState(null);
+  const[amountValue, setAmountValue] = useState(null);
+  
+  const dateItems = [
+    {label:"Today", value:'today'},
+    {label:'All', value:'all'},
+  ];
+  const statusItems =[
+    {label:'Approved', value:'approved'},
+    {label:'Pending', value:'pending'},
+    {label:'Rejected', value:'rejected'},
+    {label:'All', value:'all'}
+  ];
+  const amountItems = [
+    {label:'> 1000', value:'1000'},
+    {label:'> 5000', value:'5000'},
+    {label:'> 10000', value: '10000'},
+    {label:'All', value: 'all'}
+  ]
 
-  const handleNewClaim = () => {
-    navigation.navigate('NewClaimRequest');
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    const filtered = allApprovals.filter(item =>
+      item.category.toLowerCase().includes(text.toLowerCase())
+    );
+    setClaims(filtered);
   };
 
   return (
@@ -31,33 +50,25 @@ const ApprovalsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.searchBar}>
         <View style={styles.searchContainer}>
           <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
           <TextInput
             style={[styles.searchInput, { color: theme.text }]}
             placeholder="Search Claims"
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearch}
             placeholderTextColor={theme.text}
           />
         </View>
-        <View style={styles.filterContainer}>
-          <TouchableOpacity style={styles.filterButton}>
-            <Icon name="filter" size={20} color="#7E8356" />
-          </TouchableOpacity>
-        </View>
-      </View>
+        
+      
 
       <View style={styles.segmentContainer}>
         <TouchableOpacity style={styles.segmentButton}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Today</Text>
+          <Text style={[styles.segmentText, { color: theme.text }]}>Date</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.segmentButton}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Approved</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.segmentButton}>
-          <Text style={[styles.segmentText, { color: theme.text }]}>Filed</Text>
+          <Text style={[styles.segmentText, { color: theme.text }]}>status</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.segmentButton}>
           <Text style={[styles.segmentText, { color: theme.text }]}>Amount</Text>
@@ -112,9 +123,10 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     paddingHorizontal: 10,
-    width: '80%',
+    width: '90%',
     borderColor: 'gray',
     borderWidth: 1,
+    marginLeft:20,
   },
   searchIcon: {
     marginRight: 10,

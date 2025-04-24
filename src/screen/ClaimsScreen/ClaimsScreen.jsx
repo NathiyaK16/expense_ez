@@ -1,56 +1,397 @@
+
+
+// import React, { useState, useEffect } from 'react';
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   TouchableOpacity,
+//   SafeAreaView,
+//   TextInput,
+//   FlatList,
+// } from 'react-native';
+// import Icon from 'react-native-vector-icons/Ionicons';
+// import DropDownPicker from 'react-native-dropdown-picker';
+// import axios from 'axios';
+// import { useTheme } from '../../theme/useTheme';
+// import { BASEPATH } from '../config';
+
+// const ClaimsScreen = ({ navigation }) => {
+//   const { theme } = useTheme();
+//   const [claims, setClaims] = useState([]);
+//   const [allClaims, setAllClaims] = useState([]);
+//   const [query, setQuery] = useState('');
+//   const [expenseHeads, setExpenseHeads] = useState([]);
+//   const [subExpenseHeads, setSubExpenseHeads] = useState([]);
+
+
+//   const [dateOpen, setDateOpen] = useState(false);
+//   const [statusOpen, setStatusOpen] = useState(false);
+//   const [amountOpen, setAmountOpen] = useState(false);
+
+//   const [dateValue, setDateValue] = useState(null);
+//   const [statusValue, setStatusValue] = useState(null);
+//   const [amountValue, setAmountValue] = useState(null);
+
+//   const dateItems = [
+//     { label: 'Today', value: 'today' },
+//     { label: 'All', value: 'all' },
+//   ];
+//   const statusItems = [
+//     { label: 'Approved', value: 'approved' },
+//     { label: 'Pending', value: 'pending' },
+//     { label: 'Rejected', value: 'rejected' },
+//     { label: 'All', value: 'all' },
+//   ];
+//   const amountItems = [
+//     { label: 'More than 1000', value: 1000 },
+//     { label: 'More than 5000', value: 5000 },
+//     { label: 'More than 10000', value: 10000 },
+//     { label: 'All', value: 'all' },
+//   ];
+
+//   const fetchClaims = async () => {
+//     try {
+//       const response = await axios.get(
+//         `${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=EMP002&company_id=durr`
+//       );
+//       setClaims(response.data.claims);
+//       setAllClaims(response.data.claims);
+//     } catch (error) {
+//       console.error('Error fetching claims:', error);
+//     }
+//   };
+ 
+//   useEffect(() => {
+//     fetchClaims();
+    
+//   }, []);
+  
+//   useEffect(() => {
+//     let filtered = allClaims;
+
+//     if (dateValue === 'today') {
+//       const today = new Date().toISOString().split('T')[0];
+//       filtered = filtered.filter(item => item.submitted_date === today);
+//     }
+
+//     if (statusValue && statusValue !== 'all') {
+//       filtered = filtered.filter(
+//         item => item.status_of_approval?.toLowerCase() === statusValue.toLowerCase()
+//       );
+//     }
+
+//     if (amountValue && amountValue !== 'all') {
+//       filtered = filtered.filter(item => {
+//         const amount = item.documents?.[0]?.entered_amount || 0;
+//         return amount > amountValue;
+//       });
+//     }
+
+//     setClaims(filtered);
+//   }, [dateValue, statusValue, amountValue]);
+
+//   const handleSearch = text => {
+//     setQuery(text);
+//     const filtered = allClaims.filter(item =>
+//       item.descriptions?.toLowerCase().includes(text.toLowerCase())
+//     );
+//     setClaims(filtered);
+//   };
+
+//   const getStatusColor = status => {
+//     switch (status?.toLowerCase()) {
+//       case 'approved':
+//         return '#219e4f';
+//       case 'pending':
+//         return '#7d421e';
+//       case 'rejected':
+//         return '#F44336';
+//       default:
+//         return '#9E9E9E';
+//     }
+//   };
+
+//   const renderClaim = ({ item }) => {
+//     const document = item.documents?.[0];
+
+//     // Function to render a value, showing 'N/A' if it's null
+//     const renderValue = value => (value ? value : 'N/A');
+
+//     // Function to handle the navigation to ClaimDetailScreen
+//     const handleClaimPress = () => {
+//       navigation.navigate('ClaimDetailScreen', { claim: item });
+//     };
+
+//     return (
+//       <TouchableOpacity
+//         style={[styles.claimItem, { backgroundColor: theme.cardBg }]}
+//         onPress={handleClaimPress}>
+//         <View style={styles.claimContent}>
+//           <View style={styles.claimHeader}>
+//             <Text style={[styles.categoryText, { color: theme.text }]}>
+//               Claim #{item.claim_id}
+//             </Text>
+//             <View
+//               style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status_of_approval) }]}>
+//               <Text style={styles.statusText}>{renderValue(item.status_of_approval)}</Text>
+//             </View>
+//           </View>
+//           <Text style={{ color: theme.text }}>
+//             Main Category: {renderValue(item.expense_head)}
+//           </Text>
+
+//           <Text style={{ color: theme.text }}>
+//             Sub Category: {renderValue(item.subexpense_head)}
+//           </Text>
+          
+//           <Text style={[styles.dateText, { color: theme.text }]}>
+//             {renderValue(item.submitted_date)}
+//           </Text>
+//           {/* <Text style={[styles.descriptionText, { color: theme.text }]}>
+//             Description: {renderValue(item.descriptions)}
+//           </Text> */}
+
+          
+//           {document?.entered_amount && (
+//             <Text style={[styles.amountText, { color: theme.text }]}>
+//               ₹{document.entered_amount}
+//             </Text>
+//           )}
+
+          
+          
+//         </View>
+//       </TouchableOpacity>
+//     );
+//   };
+
+//   const handleNewClaim = () => navigation.navigate('NewClaimRequest');
+
+//   return (
+//     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+//       <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
+//         <Text style={[styles.headerTitle, { color: theme.text }]}>Claims</Text>
+//         <TouchableOpacity>
+//           <Icon name="notifications-outline" size={24} color={theme.text} />
+//         </TouchableOpacity>
+//       </View>
+
+//       <View style={styles.searchBar}>
+//         <View style={styles.searchContainer}>
+//           <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
+//           <TextInput
+//             style={[styles.searchInput, { color: theme.text }]}
+//             placeholder="Search Claims"
+//             value={query}
+//             onChangeText={handleSearch}
+//             placeholderTextColor={theme.text}
+//           />
+//         </View>
+//       </View>
+
+//       <View style={styles.filterRow}>
+//         <View style={styles.dropdownWrapper}>
+//           <DropDownPicker
+//             open={dateOpen}
+//             value={null}
+//             items={dateItems}
+//             setOpen={setDateOpen}
+//             setValue={setDateValue}
+//             setItems={() => {}}
+//             placeholder="Date"
+//             style={styles.dropdown}
+//             textStyle={styles.dropdownText}
+//             dropDownContainerStyle={styles.dropdownContainer}
+//             zIndex={3000}
+//           />
+          
+//         </View>
+
+//         <View style={styles.dropdownWrapper}>
+//           <DropDownPicker
+//             open={statusOpen}
+//             value={null}
+//             items={statusItems}
+//             setOpen={setStatusOpen}
+//             setValue={setStatusValue}
+//             setItems={() => {}}
+//             placeholder="Status"
+//             style={styles.dropdown}
+//             textStyle={styles.dropdownText}
+//             dropDownContainerStyle={styles.dropdownContainer}
+//             zIndex={2000}
+//           />
+//         </View>
+
+//         <View style={styles.dropdownWrapper}>
+//           <DropDownPicker
+//             open={amountOpen}
+//             value={null}
+//             items={amountItems}
+//             setOpen={setAmountOpen}
+//             setValue={setAmountValue}
+//             setItems={() => {}}
+//             placeholder="Amount"
+//             style={styles.dropdown}
+//             textStyle={styles.dropdownText}
+//             dropDownContainerStyle={styles.dropdownContainer}
+//             zIndex={1000}
+//           />
+//         </View>
+//       </View>
+
+//       <FlatList
+//         data={claims}
+//         keyExtractor={item => item.claim_id.toString()}
+//         renderItem={renderClaim}
+//         contentContainerStyle={styles.claimsList}
+//       />
+
+//       <TouchableOpacity style={styles.addClaimButton} onPress={handleNewClaim}>
+//         <Text style={styles.addClaimText}>Add New Claim</Text>
+//       </TouchableOpacity>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//     container: {
+//     flex: 1,
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     padding: 15,
+//   },
+//   headerTitle: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//   },
+//   claimItem: {
+//     borderRadius: 10,
+//     padding: 15,
+//     margin: 10,
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//   },
+//   claimContent: {
+//     flex: 1,
+//   },
+//   claimHeader: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//   },
+//   searchBar: {
+//     flexDirection: 'row',
+//   },
+//   searchContainer: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     margin: 10,
+//     borderRadius: 10,
+//     paddingHorizontal: 10,
+//     width: '90%',
+//     borderColor: 'gray',
+//     borderWidth: 1,
+//     marginLeft: 20,
+//   },
+//   searchIcon: {
+//     marginRight: 10,
+//   },
+//   searchInput: {
+//     flex: 1,
+//     height: 50,
+//   },
+//   claimsList: {
+//     padding: 10,
+//   },
+//   categoryText: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//   },
+//   statusBadge: {
+//     paddingHorizontal: 10,
+//     paddingVertical: 5,
+//     borderRadius: 15,
+//     marginLeft:'60%',
+//   },
+//   statusText: {
+//     color: '#FFFFFF',
+//     fontSize: 12,
+//   },
+//   dateText: {
+//     color: '#666',
+//     marginTop: 5,
+//   },
+//   amountText: {
+//     fontSize: 18,
+//     fontWeight: 'bold',
+//     marginTop: 5,
+//   },
+//   addClaimButton: {
+//     backgroundColor: '#7E8356',
+//     padding: 15,
+//     margin: 10,
+//     borderRadius: 10,
+//     alignItems: 'center',
+//   },
+//   addClaimText: {
+//     color: '#FFFFFF',
+//     fontWeight: 'bold',
+//   },
+//   filterRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     paddingHorizontal: 10,
+//     marginBottom: 10,
+//     },
+//   dropdownWrapper: {
+//     flex: 1,
+//     marginHorizontal: 5,
+//     backgroundColor:'white'
+//   },
+//   dropdown: {
+//     borderColor: '#888',
+//     backgroundColor: 'white',
+//     minHeight: 40,
+//   },
+//   dropdownText: {
+//     color: 'black',
+//     fontSize: 14,
+//   },
+//   dropdownContainer: {
+//     backgroundColor:'white',
+//     borderColor: '#888',
+//   },
+// });
+
+// export default ClaimsScreen;
+
+
 import React, { useState, useEffect } from 'react';
-import {View,Text,StyleSheet,TouchableOpacity,SafeAreaView,TextInput,FlatList,} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  TextInput,
+  FlatList,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import CheckBox from '@react-native-community/checkbox';
-import { useTheme } from '../../theme/useTheme';
 import DropDownPicker from 'react-native-dropdown-picker';
-
-const ClaimItem = ({ category, date, amount, status }) => {
-  const { theme } = useTheme();
-  const [isSelected, setSelection] = useState(false);
-
-  const getStatusColor = () => {
-    switch (status) {
-      case 'Approved': return '#219e4f';
-      case 'Pending': return '#7d421e';
-      case 'Rejected': return '#F44336';
-      default: return '#9E9E9E';
-    }
-  };
-
-  return (
-    <View style={[styles.claimItem, { backgroundColor: theme.backgroundColor }]}>
-      <CheckBox
-        disabled={false}
-        value={isSelected}
-        onValueChange={setSelection}
-        style={styles.checkbox}
-      />
-      <View style={styles.claimContent}>
-        <View style={styles.claimHeader}>
-          <Text style={[styles.categoryText, { color: theme.text }]}>{category}</Text>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
-            <Text style={styles.statusText}>{status}</Text>
-          </View>
-        </View>
-        <Text style={[styles.dateText, { color: theme.text }]}>{date}</Text>
-        <Text style={[styles.amountText, { color: theme.text }]}>INR {amount.toLocaleString()}</Text>
-      </View>
-    </View>
-  );
-};
+import axios from 'axios';
+import { useTheme } from '../../theme/useTheme';
+import { BASEPATH } from '../config';
 
 const ClaimsScreen = ({ navigation }) => {
   const { theme } = useTheme();
-
-  const allClaims = [
-    { id: '1', category: 'Travel', date: '25/03/2025', amount: 120.0, status: 'Approved' },
-    { id: '2', category: 'Food', date: '25/03/2025', amount: 2000.0, status: 'Pending' },
-    { id: '3', category: 'Purchase', date: '25/03/2025', amount: 600.0, status: 'Rejected' },
-    { id: '4', category: 'Supplies', date: '25/03/2025', amount: 8000.0, status: 'Approved' },
-  ];
-
-  const [claims, setClaims] = useState(allClaims);
+  const [claims, setClaims] = useState([]);
+  const [allClaims, setAllClaims] = useState([]);
+  const [policyDetails, setPolicyDetails] = useState([]);
   const [query, setQuery] = useState('');
 
   const [dateOpen, setDateOpen] = useState(false);
@@ -62,54 +403,164 @@ const ClaimsScreen = ({ navigation }) => {
   const [amountValue, setAmountValue] = useState(null);
 
   const dateItems = [
-    {label: 'All', value: 'all' }, 
-    { label: 'Today', value: 'today' }
-    ];
-  const statusItems = [
+    { label: 'Today', value: 'today' },
     { label: 'All', value: 'all' },
-    { label: 'Approved', value: 'Approved' },
-    { label: 'Pending', value: 'Pending' },
-    { label: 'Rejected', value: 'Rejected' },
+  ];
+  const statusItems = [
+    { label: 'Approved', value: 'approved' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Rejected', value: 'rejected' },
+    { label: 'All', value: 'all' },
   ];
   const amountItems = [
-    { label: 'All', value:'all' },
     { label: 'More than 1000', value: 1000 },
     { label: 'More than 5000', value: 5000 },
     { label: 'More than 10000', value: 10000 },
+    { label: 'All', value: 'all' },
   ];
 
-  const handleSearch = (text) => {
+  const fetchClaims = async () => {
+    try {
+      const response = await axios.get(
+        `${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=EMP002&company_id=durr`
+      );
+      setClaims(response.data.claims);
+      setAllClaims(response.data.claims);
+    } catch (error) {
+      console.error('Error fetching claims:', error);
+    }
+  };
+
+  const fetchPolicyDetails = async () => {
+    try {
+      const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=EMP002&company_id=durr`);
+      setPolicyDetails(response.data.policy_details_data);
+    } catch (error) {
+      console.error('Error fetching policy details:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchClaims();
+    fetchPolicyDetails();
+  }, []);
+
+  useEffect(() => {
+    let filtered = allClaims;
+
+    if (dateValue === 'today') {
+      const today = new Date().toISOString().split('T')[0];
+      filtered = filtered.filter(item => item.submitted_date === today);
+    }
+
+    if (statusValue && statusValue !== 'all') {
+      filtered = filtered.filter(
+        item => item.status_of_approval?.toLowerCase() === statusValue.toLowerCase()
+      );
+    }
+
+    if (amountValue && amountValue !== 'all') {
+      filtered = filtered.filter(item => {
+        const amount = item.documents?.[0]?.entered_amount || 0;
+        return amount > amountValue;
+      });
+    }
+
+    setClaims(filtered);
+  }, [dateValue, statusValue, amountValue]);
+
+  const handleSearch = text => {
     setQuery(text);
     const filtered = allClaims.filter(item =>
-      item.category.toLowerCase().includes(text.toLowerCase())
+      item.descriptions?.toLowerCase().includes(text.toLowerCase())
     );
     setClaims(filtered);
   };
 
-  
-  useEffect(() => {
-    let filtered = [...allClaims];
-  
-    if (dateValue && dateValue !== 'all') {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, '0');
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const yyyy = today.getFullYear();
-      const formattedToday = `${dd}/${mm}/${yyyy}`;
-      filtered = filtered.filter(item => item.date === formattedToday);
+  const getStatusColor = status => {
+    switch (status?.toLowerCase()) {
+      case 'approved':
+        return '#219e4f';
+      case 'pending':
+        return '#7d421e';
+      case 'rejected':
+        return '#F44336';
+      default:
+        return '#9E9E9E';
     }
+  };
+
+  const getMainExpenseName = (policyId, expenseId) => {
+    console.log("Matching policyId:", policyId, "ExpenseId:", expenseId); // Log for debugging
+    if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
   
-    if (statusValue && statusValue !== 'all') {
-      filtered = filtered.filter(item => item.status === statusValue);
+    const match = policyDetails.find(
+      p => p.policy_detail_id === policyId && p.main_expense_head === expenseId
+    );
+  
+    if (match) {
+      console.log("Main Expense Found:", match); // Log the matched policy for debugging
+      return match.expense_head_name;
     }
+    return 'N/A';
+  };
   
-    if (amountValue && amountValue !== 'all') {
-      filtered = filtered.filter(item => item.amount > amountValue);
+  const getSubExpenseName = (policyId, subExpenseId) => {
+    console.log("Matching policyId:", policyId, "SubExpenseId:", subExpenseId); // Log for debugging
+    if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
+  
+    const match = policyDetails.find(
+      p => p.policy_detail_id === policyId && p.sub_expense_head === subExpenseId
+    );
+  
+    if (match) {
+      console.log("Sub Expense Found:", match); // Log the matched policy for debugging
+      return match.sub_expense_name;
     }
+    return 'N/A';
+  };
   
-    setClaims(filtered);
-  }, [dateValue, statusValue, amountValue]);
-  
+
+  const renderClaim = ({ item }) => {
+    const document = item.documents?.[0];
+    const renderValue = value => (value ? value : 'N/A');
+    const handleClaimPress = () => {
+      navigation.navigate('ClaimDetailScreen', { claim: item });
+    };
+
+    return (
+      <TouchableOpacity
+        style={[styles.claimItem, { backgroundColor: theme.cardBg }]}
+        onPress={handleClaimPress}>
+        <View style={styles.claimContent}>
+          <View style={styles.claimHeader}>
+            <Text style={[styles.categoryText, { color: theme.text }]}>
+              Claim #{item.claim_id}
+            </Text>
+            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status_of_approval) }]}>
+              <Text style={styles.statusText}>{renderValue(item.status_of_approval)}</Text>
+            </View>
+          </View>
+
+          <Text style={{ color: theme.text }}>
+            Main Category: {getMainExpenseName(item.policy_id, item.expense_head)}
+          </Text>
+          <Text style={{ color: theme.text }}>
+            Sub Category: {getSubExpenseName(item.policy_id, item.subexpense_head)}
+          </Text>
+          <Text style={[styles.dateText, { color: theme.text }]}>
+            {renderValue(item.submitted_date)}
+          </Text>
+
+          {document?.entered_amount && (
+            <Text style={[styles.amountText, { color: theme.text }]}>
+              ₹{document.entered_amount}
+            </Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const handleNewClaim = () => navigation.navigate('NewClaimRequest');
 
@@ -137,9 +588,9 @@ const ClaimsScreen = ({ navigation }) => {
 
       <View style={styles.filterRow}>
         <View style={styles.dropdownWrapper}>
-        <DropDownPicker
+          <DropDownPicker
             open={dateOpen}
-            value={null}
+            value={dateValue}
             items={dateItems}
             setOpen={setDateOpen}
             setValue={setDateValue}
@@ -147,21 +598,15 @@ const ClaimsScreen = ({ navigation }) => {
             placeholder="Date"
             style={styles.dropdown}
             textStyle={styles.dropdownText}
-            selectedItemLabelStyle={{ display: 'none' }}
             dropDownContainerStyle={styles.dropdownContainer}
-            arrowIconStyle={styles.arrowIcon}
-            zIndex={2000}
-            zIndexInverse={2000}
+            zIndex={3000}
           />
-       
-
-
         </View>
 
         <View style={styles.dropdownWrapper}>
           <DropDownPicker
             open={statusOpen}
-            value={null}
+            value={statusValue}
             items={statusItems}
             setOpen={setStatusOpen}
             setValue={setStatusValue}
@@ -169,18 +614,15 @@ const ClaimsScreen = ({ navigation }) => {
             placeholder="Status"
             style={styles.dropdown}
             textStyle={styles.dropdownText}
-            selectedItemLabelStyle={{ display: 'none' }}
             dropDownContainerStyle={styles.dropdownContainer}
-            arrowIconStyle={styles.arrowIcon}
             zIndex={2000}
-            zIndexInverse={2000}
           />
         </View>
 
         <View style={styles.dropdownWrapper}>
           <DropDownPicker
             open={amountOpen}
-            value={null}
+            value={amountValue}
             items={amountItems}
             setOpen={setAmountOpen}
             setValue={setAmountValue}
@@ -188,26 +630,16 @@ const ClaimsScreen = ({ navigation }) => {
             placeholder="Amount"
             style={styles.dropdown}
             textStyle={styles.dropdownText}
-            selectedItemLabelStyle={{ display: 'none' }}
             dropDownContainerStyle={styles.dropdownContainer}
-            arrowIconStyle={styles.arrowIcon}
             zIndex={1000}
-            zIndexInverse={3000}
           />
         </View>
       </View>
 
       <FlatList
         data={claims}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ClaimItem
-            category={item.category}
-            date={item.date}
-            amount={item.amount}
-            status={item.status}
-          />
-        )}
+        keyExtractor={item => item.claim_id.toString()}
+        renderItem={renderClaim}
         contentContainerStyle={styles.claimsList}
       />
 
@@ -233,14 +665,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   claimItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
     borderRadius: 10,
     padding: 15,
-    marginBottom: 10,
-  },
-  checkbox: {
-    marginRight: 10,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   claimContent: {
     flex: 1,
@@ -250,30 +679,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  searchBar: {
-    flexDirection: 'row',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: 10,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    width: '90%',
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginLeft: 20,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    height: 50,
-  },
-  claimsList: {
-    padding: 10,
-  },
   categoryText: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -282,6 +687,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 15,
+    marginLeft: '60%',
   },
   statusText: {
     color: '#FFFFFF',
@@ -307,32 +713,53 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
+  searchBar: {
+    flexDirection: 'row',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 10,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    width: '90%',
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginLeft: 20,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    height: 50,
+  },
+  claimsList: {
+    padding: 10,
+  },
   filterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    zIndex: 1000,
     marginBottom: 10,
   },
   dropdownWrapper: {
     flex: 1,
     marginHorizontal: 5,
+    backgroundColor: 'white',
   },
   dropdown: {
     borderColor: '#888',
-    backgroundColor: '#1e1e1e',
+    backgroundColor: 'white',
     minHeight: 40,
   },
   dropdownText: {
-    color: '#fff',
+    color: 'black',
     fontSize: 14,
   },
   dropdownContainer: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: 'white',
     borderColor: '#888',
-  },
-  arrowIcon: {
-    tintColor: '#fff',
   },
 });
 

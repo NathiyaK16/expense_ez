@@ -10,6 +10,7 @@ import { useTheme } from '../../theme/useTheme';
 import { BASEPATH } from '../config';
 import {launchImageLibrary} from 'react-native-image-picker';
 import { PermissionsAndroid, Platform, Linking } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 
 const NewClaimRequestScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -21,6 +22,9 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [mainCategories, setMainCategories] = useState([]);
   const [policyMap, setPolicyMap] = useState({});
   const [showPolicyDetails, setShowPolicyDetails] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null); 
+  const [loading, setLoading] = useState(false); 
+
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -49,31 +53,6 @@ const NewClaimRequestScreen = ({ navigation }) => {
     navigation.navigate('Claims');
   };
 
- 
-
-
-  // useEffect(() => {
-  //   axios.get('http://192.168.0.24:8081/v1/client/policy/get_all_policies2/?operation=read&company_id=durr')
-  //     .then(res => {
-  //       const apiData = res?.data?.data || [];
-  //       const categories = [];
-  //       const policyMap = {};
-
-  //       apiData.forEach(item => {
-  //         const { main_expense_head, main_expense_name, policy_details } = item;
-  //         categories.push({ id: main_expense_head, name: main_expense_name });
-  //         policyMap[main_expense_name] = policy_details;
-  //       });
-
-  //       setMainCategories(categories);
-  //       setPolicyMap(policyMap);
-  //     })
-  //     .catch(() => {
-  //       Alert.alert("Something went wrong");
-  //     });
-  // }, []);
-
-
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
@@ -99,7 +78,6 @@ const NewClaimRequestScreen = ({ navigation }) => {
   
     fetchPolicies();
   }, []);
-  
   
   
   // const handleUploadBill = async () => {
@@ -136,13 +114,27 @@ const NewClaimRequestScreen = ({ navigation }) => {
   //           try {
   //             const payload = {
   //               company_id: 'your_company_id',
-  //               expense_head: mainCategory,
-  //               subexpense_head: subCategory,
+  //               expense_head: mainCategory, // already set by the user
+  //               subexpense_head: subCategory, // already set by the user
   //               document: [`data:image/jpeg;base64,${base64Image}`],
   //             };
   
-  //             await axios.post(`${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`);
-  //             Alert.alert('Success', 'Image uploaded successfully');
+  //             // Trigger the API to process the image and get data
+  //             const apiResponse = await axios.post(
+  //               `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
+  //               payload,
+  //             );
+  
+  //             const data = apiResponse.data;
+  
+  //             setApiData({
+  //               amount: data.amount,
+  //               expense_head: data.expense_head,
+  //               subexpense_head: data.subexpense_head,
+  //               date: data.date,
+  //             });
+            
+  //             Alert.alert('Success', 'Image uploaded and data populated');
   //           } catch (err) {
   //             console.error(err);
   //             Alert.alert('Upload failed', 'Please try again later.');
@@ -152,30 +144,14 @@ const NewClaimRequestScreen = ({ navigation }) => {
   //     },
   //   );
   // };
-
-  // 
-  const handleUploadBill = async () => {
-    const permissionGranted = await requestGalleryPermission();
-  
-    if (!permissionGranted) {
-      Alert.alert(
-        'Permission Denied',
-        'Please enable photo access in settings to upload bills.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: () => Linking.openSettings() },
-        ],
-      );
-      return;
-    }
-  
+  const handleChooseImage = () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
         includeBase64: true,
         quality: 0.8,
       },
-      async (response) => {
+      (response) => {
         if (response.didCancel) {
           console.log('User cancelled image picker');
         } else if (response.errorCode) {
@@ -183,68 +159,72 @@ const NewClaimRequestScreen = ({ navigation }) => {
           Alert.alert('Error', 'Failed to pick image');
         } else {
           const base64Image = response.assets?.[0]?.base64;
-  
           if (base64Image) {
-            try {
-              const payload = {
-                company_id: 'your_company_id',
-                expense_head: mainCategory, // already set by the user
-                subexpense_head: subCategory, // already set by the user
-                document: [`data:image/jpeg;base64,${base64Image}`],
-              };
-  
-              // Trigger the API to process the image and get data
-              const apiResponse = await axios.post(
-                `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
-                payload,
-              );
-  
-              const data = apiResponse.data;
-  
-              // Set the populated data from the API (only update OCR-related fields)
-              setApiData((prevApiData) => ({
-                ...prevApiData,
-                amount: data.amount || prevApiData.amount,
-                policyMap: data.policyMap || prevApiData.policyMap,
-                expense_head: data.expense_head || prevApiData.expense_head,
-                subexpense_head: data.subexpense_head || prevApiData.subexpense_head,
-                date: data.date || prevApiData.date,
-                // Add any other fields from the API that you want to populate
-              }));
-  console.log(data);
-              Alert.alert('Success', 'Image uploaded and data populated');
-            } catch (err) {
-              console.error(err);
-              Alert.alert('Upload failed', 'Please try again later.');
-            }
+            setSelectedImage({
+              uri: response.assets[0].uri,
+              base64: base64Image,
+            });
           }
         }
-      },
+      }
     );
   };
   
+  const handleUploadBill = async () => {
+    if (!selectedImage) {
+      return Alert.alert('No Image Selected', 'Please choose an image before uploading.');
+    }
   
-
-// const requestGalleryPermission = async () => {
-//   if (Platform.OS === 'android') {
-//     try {
-//       const granted = await PermissionsAndroid.request(
-//         PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-//         {
-//           title: "Photo Access Permission",
-//           message: "We need access to your photos to upload the bill.",
-//           buttonPositive: "OK",
-//           buttonNegative: "Cancel"
-//         }
-//       );
-//       return granted === PermissionsAndroid.RESULTS.GRANTED;
-//     } catch (err) {
-//       console.warn("Permission error: ", err);
-//       return false;
-//     }
-//   }
-//   return true; // iOS handles this via Info.plist
-// };
+    setLoading(true); // Start the loading indicator
+  
+    const permissionGranted = await requestGalleryPermission();
+  
+    if (!permissionGranted) {
+      Alert.alert(
+        'Permission Denied',
+        'Please enable photo access in settings to upload the bill.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ]
+      );
+      setLoading(false); // Stop loading indicator if permission is denied
+      return;
+    }
+  
+    try {
+      const payload = {
+        company_id: 'your_company_id',
+        expense_head: mainCategory,
+        subexpense_head: subCategory,
+        document: [`data:image/jpeg;base64,${selectedImage.base64}`],
+      };
+  
+      // Trigger the API to process the image and get data
+      const apiResponse = await axios.post(
+        `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
+      );
+  
+      const data = apiResponse.data;
+  
+      // Set the extracted data into the state
+      setApiData({
+        amount: data.amount,
+        expense_head: data.expense_head,
+        subexpense_head: data.subexpense_head,
+        date: data.date,
+      });
+      
+      
+      Alert.alert('Success', 'Image uploaded and data populated');
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Upload failed', 'Please try again later.');
+    }
+  
+    setLoading(false); // Stop the loading indicator
+  };
+  
 
 const requestGalleryPermission = async () => {
   if (Platform.OS === 'android') {
@@ -287,45 +267,6 @@ const handleSubmit = () => {
           <Text style={[styles.headerTitle, { color: theme.text }]}>New Claim Request</Text>
         </View>
 
-        {/* <View style={styles.formContainer}>
-          <View style={[styles.inputGroup]}>
-            <Text style={[styles.label, { color: theme.text }]}>Main Expense Category</Text>
-            <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
-              <Picker
-                selectedValue={mainCategory}
-                style={[styles.picker, { color: theme.text }]}
-                
-                onValueChange={(value) => {
-                  setMainCategory(value);
-                  setSubCategory(null);
-                }}>
-                {!mainCategory && (
-                  <Picker.Item label="Select Main Category" value={null} enabled={false} />
-                )}
-                {mainCategories.map((item) => (
-                  <Picker.Item key={item.id} label={item.name} value={item.name} />
-                ))}
-              </Picker>
-            </View>
-          </View>
-
-          {mainCategory && (
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.text }]}>Sub Expense Category</Text>
-              <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
-                <Picker
-                  selectedValue={subCategory}
-                  style={[styles.picker, { color: theme.text }]}
-                  onValueChange={(value) => setSubCategory(value)}>
-                  {!subCategory && (
-                    <Picker.Item label="Select Subcategory" value={null} enabled={false} />
-                  )}
-                  {policyMap[mainCategory]?.map((item, index) => (
-                    <Picker.Item key={index} label={item.sub_expense_name} value={item.sub_expense_name} />
-                  ))}
-                </Picker>
-              </View> 
-            </View> */}
             <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.text }]}>Main Expense Category</Text>
@@ -434,51 +375,63 @@ const handleSubmit = () => {
             )}
           </View>
           </View>
-          {/* <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.text }] } >Upload Bill</Text>
-            <TouchableOpacity style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}onPress={handleUploadBill}>
-              <Icon name="cloud-upload-outline" size={24} color={theme.text} />
-              </TouchableOpacity>
-              
-          </View> */}
-          {/* <View style={styles.inputGroup}>
- 
-  <Text style={[styles.label, { color: theme.text }] } >Upload Bill</Text>
-            <TouchableOpacity style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}onPress={handleUploadBill}>
-              <Icon name="cloud-upload-outline" size={24} color={theme.text} />
-              </TouchableOpacity>
-
- 
-  {apiData.amount && (
-    <View style={styles.apiDataContainer}>
-      <Text>Amount: {apiData.amount}</Text>
-      {apiData.policyMap && apiData.policyMap.details && (
-        <Text>Policy Details: {apiData.policyMap.details}</Text>
-      )}
-      
-    </View>
-  )}
-
-</View> */}
+          
 <View style={styles.inputGroup}>
-  <Text style={[styles.label, { color: theme.text }]}>Upload Bill</Text>
+  {/* <Text style={[styles.label, { color: theme.text }]}>Upload Bill</Text>
   <TouchableOpacity 
     style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
     onPress={handleUploadBill}
   >
     <Icon name="cloud-upload-outline" size={24} color={theme.text} />
-  </TouchableOpacity>
+  </TouchableOpacity> */}
+// Image Picker Button (Before Upload)
+<TouchableOpacity 
+  style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
+  onPress={() => handleChooseImage()}>
+  <Icon name="image-outline" size={24} color={theme.text} />
+  <Text style={[styles.uploadText, { color: theme.text }]}>Choose Image</Text>
+</TouchableOpacity>
 
-  {/* Conditionally render the populated fields after image upload */}
-  {apiData.expense_head && (
-    <View style={{ padding: 10, backgroundColor: '#f4f4f4', borderRadius: 10, marginVertical: 10 }}>
-      <Text style={{ fontWeight: 'bold' }}>Extracted Information:</Text>
-      <Text>Main Expense: {apiData.expense_head}</Text>
-      <Text>Sub Expense: {apiData.subexpense_head}</Text>
-      <Text>Date: {apiData.date}</Text>
-      <Text>Amount: {apiData.amount}</Text>
-    </View>
-  )}
+// If an image is selected, show it
+{selectedImage && (
+  <View style={styles.selectedImageContainer}>
+    <Image 
+      source={{ uri: `data:image/jpeg;base64,${selectedImage.base64}` }} 
+      style={styles.selectedImage} 
+    />
+    <Text style={[styles.imageInfo, { color: theme.text }]}>Image Selected</Text>
+  </View>
+)}
+
+// Upload Button
+{selectedImage && !loading && (
+  <TouchableOpacity
+    style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
+    onPress={handleUploadBill}
+  >
+    <Icon name="cloud-upload-outline" size={24} color={theme.text} />
+    <Text style={[styles.uploadText, { color: theme.text }]}>Upload Bill</Text>
+  </TouchableOpacity>
+)}
+
+// Loading indicator while the API is being called
+{loading && (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator size="large" color={theme.text} />
+    <Text style={[styles.loadingText, { color: theme.text }]}>Uploading...</Text>
+  </View>
+)}
+
+{apiData.expense_head && (
+  <View style={{ padding: 10, backgroundColor: '#f4f4f4', borderRadius: 10, marginVertical: 10 }}>
+    <Text style={{ fontWeight: 'bold' }}>Extracted Info (OCR):</Text>
+    <Text>Main Expense (OCR): {apiData.expense_head}</Text>
+    <Text>Sub Expense (OCR): {apiData.subexpense_head}</Text>
+    <Text>Date (OCR): {apiData.date}</Text>
+    <Text>Amount (OCR): {apiData.amount}</Text>
+  </View>
+)}
+
 </View>
 
 
@@ -578,6 +531,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   dateText: { color: '#333' },
+  selectedImageContainer: {
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  selectedImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 10,
+    borderRadius: 8,
+  },
+  imageInfo: {
+    fontSize: 14,
+    color: '#555',
+  },
+
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  loadingText: {
+    marginLeft: 10,
+    fontSize: 16,
+    fontWeight: '500',
+  },
   uploadButton: {
     flexDirection: 'row',
     alignItems: 'center',
