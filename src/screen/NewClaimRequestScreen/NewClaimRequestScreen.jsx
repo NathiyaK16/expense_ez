@@ -170,62 +170,119 @@ const NewClaimRequestScreen = ({ navigation }) => {
     );
   };
   
+  // const handleUploadBill = async () => {
+  //   if (!selectedImage) {
+  //     return Alert.alert('No Image Selected', 'Please choose an image before uploading.');
+  //   }
+  
+  //   setLoading(true); // Start the loading indicator
+  
+  //   const permissionGranted = await requestGalleryPermission();
+  
+  //   if (!permissionGranted) {
+  //     Alert.alert(
+  //       'Permission Denied',
+  //       'Please enable photo access in settings to upload the bill.',
+  //       [
+  //         { text: 'Cancel', style: 'cancel' },
+  //         { text: 'Open Settings', onPress: () => Linking.openSettings() },
+  //       ]
+  //     );
+  //     setLoading(false); // Stop loading indicator if permission is denied
+  //     return;
+  //   }
+  
+  //   try {
+  //     const payload = {
+  //       "company_id": "companyid",
+  //       "expense_head": "mainCategory",
+  //       "subexpense_head": "subCategory",
+  //       "document": [`data:image/jpeg;base64,${selectedImage.base64}`],
+  //     };
+  
+  //     // Trigger the API to process the image and get data
+  //     const apiResponse = await axios.post(
+  //       `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
+  //       payload
+  //     );
+  //     const data = apiResponse.data;
+  
+  //     // Set the extracted data into the state
+  //     setApiData({
+  //       amount: data.amount,
+  //       expense_head: data.expense_head,
+  //       subexpense_head: data.subexpense_head,
+  //       date: data.date,
+  //     });
+      
+      
+  //     Alert.alert('Success', 'Image uploaded and data populated');
+  //   } catch (err) {
+  //     console.error(err);
+  //     Alert.alert('Upload failed', 'Please try again later.');
+  //   }
+  
+  //   setLoading(false); // Stop the loading indicator
+  // };
+  
   const handleUploadBill = async () => {
     if (!selectedImage) {
-      return Alert.alert('No Image Selected', 'Please choose an image before uploading.');
-    }
-  
-    setLoading(true); // Start the loading indicator
-  
-    const permissionGranted = await requestGalleryPermission();
-  
-    if (!permissionGranted) {
-      Alert.alert(
-        'Permission Denied',
-        'Please enable photo access in settings to upload the bill.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Open Settings', onPress: () => Linking.openSettings() },
-        ]
-      );
-      setLoading(false); // Stop loading indicator if permission is denied
+      Alert.alert('No Image Selected', 'Please choose an image before uploading.');
       return;
     }
   
+    setLoading(true); 
     try {
+      const permissionGranted = await requestGalleryPermission();
+  
+      if (!permissionGranted) {
+        Alert.alert(
+          'Permission Denied',
+          'Please enable photo access in settings to upload the bill.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: () => Linking.openSettings() },
+          ]
+        );
+        setLoading(false);
+        return;
+      }
+  
       const payload = {
-        company_id: 'your_company_id',
-        expense_head: mainCategory,
-        subexpense_head: subCategory,
+        company_id: "your_company_id_here", 
+        expense_head: "Travel",             
+        subexpense_head: "Travel - Air - Business class", 
         document: [`data:image/jpeg;base64,${selectedImage.base64}`],
       };
   
-      // Trigger the API to process the image and get data
       const apiResponse = await axios.post(
         `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json', 
+          },
+        }
       );
   
       const data = apiResponse.data;
   
-      // Set the extracted data into the state
       setApiData({
         amount: data.amount,
         expense_head: data.expense_head,
         subexpense_head: data.subexpense_head,
         date: data.date,
       });
-      
-      
-      Alert.alert('Success', 'Image uploaded and data populated');
+  
+      Alert.alert('Success', 'Image uploaded and data populated!');
     } catch (err) {
       console.error(err);
       Alert.alert('Upload failed', 'Please try again later.');
+    } finally {
+      setLoading(false); 
     }
-  
-    setLoading(false); // Stop the loading indicator
   };
   
-
 const requestGalleryPermission = async () => {
   if (Platform.OS === 'android') {
     const permission = Platform.Version >= 33
@@ -243,7 +300,7 @@ const requestGalleryPermission = async () => {
 
     return granted === PermissionsAndroid.RESULTS.GRANTED;
   }
-  return true; // iOS handles permissions differently
+  return true; 
 };
 const handleSubmit = () => {
   if (!mainCategory || !subCategory || !amount) {
