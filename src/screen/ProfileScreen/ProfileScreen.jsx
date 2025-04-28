@@ -67,11 +67,11 @@ const ProfileScreen = ({ navigation }) => {
             />
           </View>
 
-          <TouchableOpacity style={Styles.menuItem}>
+          {/* <TouchableOpacity style={Styles.menuItem}>
             <FontAwesome name="bank" size={24} color="#fc7303" />
             <Text style={[Styles.menuText, { color: theme.text }]}>Bank & Cards</Text>
             <Entypo name="chevron-right" size={22} color={theme.text} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity style={Styles.menuItem}>
             <Fontisto name="player-settings" size={24} color="#2e18f2" />

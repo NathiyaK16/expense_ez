@@ -5,7 +5,7 @@ import { useTheme } from '../../theme/useTheme';
 
 const ApprovalsScreen = ({ navigation }) => {
   const { theme } = useTheme();
-  const [approvals, setApprovals] = useState(allApprovals);
+  //const [approvals, setApprovals] = useState(allApprovals);
   const [searchQuery, setSearchQuery] = useState('');
  
   const[dateOpen, setDateOpen] = useState(false);
@@ -33,13 +33,13 @@ const ApprovalsScreen = ({ navigation }) => {
     {label:'All', value: 'all'}
   ]
 
-  const handleSearch = (text) => {
-    setSearchQuery(text);
-    const filtered = allApprovals.filter(item =>
-      item.category.toLowerCase().includes(text.toLowerCase())
-    );
-    setClaims(filtered);
-  };
+  // const handleSearch = (text) => {
+  //   setSearchQuery(text);
+  //   const filtered = allApprovals.filter(item =>
+  //     item.category.toLowerCase().includes(text.toLowerCase())
+  //   );
+  //   setClaims(filtered);
+  // };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -56,7 +56,7 @@ const ApprovalsScreen = ({ navigation }) => {
             style={[styles.searchInput, { color: theme.text }]}
             placeholder="Search Claims"
             value={searchQuery}
-            onChangeText={handleSearch}
+            // onChangeText={handleSearch}
             placeholderTextColor={theme.text}
           />
         </View>

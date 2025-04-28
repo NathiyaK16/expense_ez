@@ -43,7 +43,7 @@ import { useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { lightTheme, darkTheme } from "./themes";
 
-// ✅ Named export for ThemeContext
+
 export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
@@ -56,10 +56,10 @@ export const ThemeProvider = ({ children }) => {
       if (savedTheme === "light" || savedTheme === "dark") {
         setThemeName(savedTheme);
       } else {
-        setThemeName(systemScheme); // fallback to system theme
+        setThemeName(systemScheme); 
       }
     })();
-  }, [systemScheme]); // update if system theme changes
+  }, [systemScheme]); 
 
   const toggleTheme = async () => {
     const newTheme = themeName === "light" ? "dark" : "light";

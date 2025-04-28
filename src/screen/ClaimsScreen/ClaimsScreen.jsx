@@ -372,15 +372,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  TextInput,
-  FlatList,
-} from 'react-native';
+import {View,Text,StyleSheet,TouchableOpacity,SafeAreaView,TextInput,FlatList,} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import axios from 'axios';
@@ -476,51 +468,73 @@ const ClaimsScreen = ({ navigation }) => {
     );
     setClaims(filtered);
   };
+//   const statusStyles = {
+//     Pending: { backgroundColor: '#fff8dc', color: '#b58900' }, // Light Yellow
+//     Approved: { backgroundColor: '#e6fff3', color: '#065f46' }, // Light Green
+//     Rejected: { backgroundColor: '#ffebeb', color: '#d32f2f' }, // Light Red
+// };
 
   const getStatusColor = status => {
-    switch (status?.toLowerCase()) {
+    switch (status) {
       case 'approved':
         return '#219e4f';
       case 'pending':
         return '#7d421e';
       case 'rejected':
         return '#F44336';
-      default:
-        return '#9E9E9E';
     }
   };
 
+  // const getMainExpenseName = (policyId, expenseId) => {
+  //   console.log("Matching policyId:", policyId, "ExpenseId:", expenseId); // Log for debugging
+  //   if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
+  
+  //   const match = policyDetails.find(
+  //     p => p.policy_detail_id === policyId && p.main_expense_head === expenseId
+  //   );
+  
+  //   if (match) {
+  //     console.log("Main Expense Found:", match); // Log the matched policy for debugging
+  //     return match.expense_head_name;
+  //   }
+  //   return 'N/A';
+  // };
+  
+  // const getSubExpenseName = (policyId, subExpenseId) => {
+  //   console.log("Matching policyId:", policyId, "SubExpenseId:", subExpenseId); // Log for debugging
+  //   if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
+  
+  //   const match = policyDetails.find(
+  //     p => p.policy_detail_id === policyId && p.sub_expense_head === subExpenseId
+  //   );
+  
+  //   if (match) {
+  //     console.log("Sub Expense Found:", match); // Log the matched policy for debugging
+  //     return match.sub_expense_name;
+  //   }
+  //   return 'N/A';
+  // };
+  
   const getMainExpenseName = (policyId, expenseId) => {
-    console.log("Matching policyId:", policyId, "ExpenseId:", expenseId); // Log for debugging
-    if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
+    if (!Array.isArray(policyDetails)) return 'N/A';
   
     const match = policyDetails.find(
-      p => p.policy_detail_id === policyId && p.main_expense_head === expenseId
+      (p) => p.policy_detail_id === policyId && p.main_expense_head === expenseId
     );
   
-    if (match) {
-      console.log("Main Expense Found:", match); // Log the matched policy for debugging
-      return match.expense_head_name;
-    }
-    return 'N/A';
+    return match?.expense_head_name || 'N/A';
   };
   
   const getSubExpenseName = (policyId, subExpenseId) => {
-    console.log("Matching policyId:", policyId, "SubExpenseId:", subExpenseId); // Log for debugging
-    if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
+    if (!Array.isArray(policyDetails)) return 'N/A';
   
     const match = policyDetails.find(
-      p => p.policy_detail_id === policyId && p.sub_expense_head === subExpenseId
+      (p) => p.policy_detail_id === policyId && p.sub_expense_head === subExpenseId
     );
   
-    if (match) {
-      console.log("Sub Expense Found:", match); // Log the matched policy for debugging
-      return match.sub_expense_name;
-    }
-    return 'N/A';
+    return match?.sub_expense_name || 'N/A';
   };
   
-
   const renderClaim = ({ item }) => {
     const document = item.documents?.[0];
     const renderValue = value => (value ? value : 'N/A');
@@ -563,13 +577,13 @@ const ClaimsScreen = ({ navigation }) => {
   };
 
   const handleNewClaim = () => navigation.navigate('NewClaimRequest');
-
+const handleNotification = () => navigation.navigate('Notification');
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Claims</Text>
         <TouchableOpacity>
-          <Icon name="notifications-outline" size={24} color={theme.text} />
+          <Icon name="notifications-outline" size={24} color={theme.text} onPress={handleNotification} />
         </TouchableOpacity>
       </View>
 

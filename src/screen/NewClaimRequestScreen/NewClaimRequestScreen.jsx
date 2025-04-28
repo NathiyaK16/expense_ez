@@ -24,7 +24,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [showPolicyDetails, setShowPolicyDetails] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); 
   const [loading, setLoading] = useState(false); 
-
+  const [entity, setEntity] = useState(null);
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -42,10 +42,10 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [apiData, setApiData] = useState({
     amount: '',
     policyMap: {},
-    expense_head: '',  // Main expense category from OCR
-    subexpense_head: '',  // Sub expense category from OCR
-    date: '',  // Date from OCR
-    // other fields from the API as needed
+    expense_head: '',  
+    subexpense_head: '',  
+    date: '', 
+    
   });
   
 
@@ -80,70 +80,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
   }, []);
   
   
-  // const handleUploadBill = async () => {
-  //   const permissionGranted = await requestGalleryPermission();
   
-  //   if (!permissionGranted) {
-  //     Alert.alert(
-  //       'Permission Denied',
-  //       'Please enable photo access in settings to upload bills.',
-  //       [
-  //         { text: 'Cancel', style: 'cancel' },
-  //         { text: 'Open Settings', onPress: () => Linking.openSettings() },
-  //       ],
-  //     );
-  //     return;
-  //   }
-  
-  //   launchImageLibrary(
-  //     {
-  //       mediaType: 'photo',
-  //       includeBase64: true,
-  //       quality: 0.8,
-  //     },
-  //     async (response) => {
-  //       if (response.didCancel) {
-  //         console.log('User cancelled image picker');
-  //       } else if (response.errorCode) {
-  //         console.log('Image Picker Error:', response.errorMessage);
-  //         Alert.alert('Error', 'Failed to pick image');
-  //       } else {
-  //         const base64Image = response.assets?.[0]?.base64;
-  
-  //         if (base64Image) {
-  //           try {
-  //             const payload = {
-  //               company_id: 'your_company_id',
-  //               expense_head: mainCategory, // already set by the user
-  //               subexpense_head: subCategory, // already set by the user
-  //               document: [`data:image/jpeg;base64,${base64Image}`],
-  //             };
-  
-  //             // Trigger the API to process the image and get data
-  //             const apiResponse = await axios.post(
-  //               `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
-  //               payload,
-  //             );
-  
-  //             const data = apiResponse.data;
-  
-  //             setApiData({
-  //               amount: data.amount,
-  //               expense_head: data.expense_head,
-  //               subexpense_head: data.subexpense_head,
-  //               date: data.date,
-  //             });
-            
-  //             Alert.alert('Success', 'Image uploaded and data populated');
-  //           } catch (err) {
-  //             console.error(err);
-  //             Alert.alert('Upload failed', 'Please try again later.');
-  //           }
-  //         }
-  //       }
-  //     },
-  //   );
-  // };
   const handleChooseImage = () => {
     launchImageLibrary(
       {
@@ -170,62 +107,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
     );
   };
   
-  // const handleUploadBill = async () => {
-  //   if (!selectedImage) {
-  //     return Alert.alert('No Image Selected', 'Please choose an image before uploading.');
-  //   }
-  
-  //   setLoading(true); // Start the loading indicator
-  
-  //   const permissionGranted = await requestGalleryPermission();
-  
-  //   if (!permissionGranted) {
-  //     Alert.alert(
-  //       'Permission Denied',
-  //       'Please enable photo access in settings to upload the bill.',
-  //       [
-  //         { text: 'Cancel', style: 'cancel' },
-  //         { text: 'Open Settings', onPress: () => Linking.openSettings() },
-  //       ]
-  //     );
-  //     setLoading(false); // Stop loading indicator if permission is denied
-  //     return;
-  //   }
-  
-  //   try {
-  //     const payload = {
-  //       "company_id": "companyid",
-  //       "expense_head": "mainCategory",
-  //       "subexpense_head": "subCategory",
-  //       "document": [`data:image/jpeg;base64,${selectedImage.base64}`],
-  //     };
-  
-  //     // Trigger the API to process the image and get data
-  //     const apiResponse = await axios.post(
-  //       `${BASEPATH}v1/client/ocr_model_check/ocr_checks_creator/`,
-  //       payload
-  //     );
-  //     const data = apiResponse.data;
-  
-  //     // Set the extracted data into the state
-  //     setApiData({
-  //       amount: data.amount,
-  //       expense_head: data.expense_head,
-  //       subexpense_head: data.subexpense_head,
-  //       date: data.date,
-  //     });
-      
-      
-  //     Alert.alert('Success', 'Image uploaded and data populated');
-  //   } catch (err) {
-  //     console.error(err);
-  //     Alert.alert('Upload failed', 'Please try again later.');
-  //   }
-  
-  //   setLoading(false); // Stop the loading indicator
-  // };
-  
-  const handleUploadBill = async () => {
+   const handleUploadBill = async () => {
     if (!selectedImage) {
       Alert.alert('No Image Selected', 'Please choose an image before uploading.');
       return;
@@ -233,25 +115,25 @@ const NewClaimRequestScreen = ({ navigation }) => {
   
     setLoading(true); 
     try {
-      const permissionGranted = await requestGalleryPermission();
+      //const permissionGranted = await requestGalleryPermission();
   
-      if (!permissionGranted) {
-        Alert.alert(
-          'Permission Denied',
-          'Please enable photo access in settings to upload the bill.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => Linking.openSettings() },
-          ]
-        );
-        setLoading(false);
-        return;
-      }
+      // if (!permissionGranted) {
+      //   Alert.alert(
+      //     'Permission Denied',
+      //     'Please enable photo access in settings to upload the bill.',
+      //     [
+      //       { text: 'Cancel', style: 'cancel' },
+      //       { text: 'Open Settings', onPress: () => Linking.openSettings() },
+      //     ]
+      //   );
+      //   setLoading(false);
+      //   return;
+      // }
   
       const payload = {
-        company_id: "your_company_id_here", 
-        expense_head: "Travel",             
-        subexpense_head: "Travel - Air - Business class", 
+        company_id: "CompanyID", 
+        expense_head: "MainExpense",             
+        subexpense_head: "SubExpense", 
         document: [`data:image/jpeg;base64,${selectedImage.base64}`],
       };
   
@@ -264,9 +146,9 @@ const NewClaimRequestScreen = ({ navigation }) => {
           },
         }
       );
-  
+      setEntity(apiResponse.data.entities?.[0]);
       const data = apiResponse.data;
-  
+      console.log(data);
       setApiData({
         amount: data.amount,
         expense_head: data.expense_head,
@@ -283,25 +165,25 @@ const NewClaimRequestScreen = ({ navigation }) => {
     }
   };
   
-const requestGalleryPermission = async () => {
-  if (Platform.OS === 'android') {
-    const permission = Platform.Version >= 33
-      ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-      : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+// const requestGalleryPermission = async () => {
+//   if (Platform.OS === 'android') {
+//     const permission = Platform.Version >= 33
+//       ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+//       : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
-    const alreadyGranted = await PermissionsAndroid.check(permission);
-    if (alreadyGranted) return true;
+//     const alreadyGranted = await PermissionsAndroid.check(permission);
+//     if (alreadyGranted) return true;
 
-    const granted = await PermissionsAndroid.request(permission, {
-      title: 'Photo Access Needed',
-      message: 'We need access to your gallery to upload the bill.',
-      buttonPositive: 'OK',
-    });
+//     const granted = await PermissionsAndroid.request(permission, {
+//       title: 'Photo Access Needed',
+//       message: 'We need access to your gallery to upload the bill.',
+//       buttonPositive: 'OK',
+//     });
 
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  }
-  return true; 
-};
+//     return granted === PermissionsAndroid.RESULTS.GRANTED;
+//   }
+//   return true; 
+// };
 const handleSubmit = () => {
   if (!mainCategory || !subCategory || !amount) {
     return Alert.alert("Missing Fields", "Please fill all the fields before submitting.");
@@ -434,13 +316,7 @@ const handleSubmit = () => {
           </View>
           
 <View style={styles.inputGroup}>
-  {/* <Text style={[styles.label, { color: theme.text }]}>Upload Bill</Text>
-  <TouchableOpacity 
-    style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
-    onPress={handleUploadBill}
-  >
-    <Icon name="cloud-upload-outline" size={24} color={theme.text} />
-  </TouchableOpacity> */}
+ 
 // Image Picker Button (Before Upload)
 <TouchableOpacity 
   style={[styles.uploadButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
@@ -471,7 +347,7 @@ const handleSubmit = () => {
   </TouchableOpacity>
 )}
 
-// Loading indicator while the API is being called
+
 {loading && (
   <View style={styles.loadingContainer}>
     <ActivityIndicator size="large" color={theme.text} />
@@ -479,18 +355,15 @@ const handleSubmit = () => {
   </View>
 )}
 
-{apiData.expense_head && (
-  <View style={{ padding: 10, backgroundColor: '#f4f4f4', borderRadius: 10, marginVertical: 10 }}>
-    <Text style={{ fontWeight: 'bold' }}>Extracted Info (OCR):</Text>
-    <Text>Main Expense (OCR): {apiData.expense_head}</Text>
-    <Text>Sub Expense (OCR): {apiData.subexpense_head}</Text>
-    <Text>Date (OCR): {apiData.date}</Text>
-    <Text>Amount (OCR): {apiData.amount}</Text>
-  </View>
-)}
 
 </View>
+<View>
+<Text>Bill No: {entity?.bill_no}</Text>
+<Text>Date: {entity?.date}</Text>
+<Text>From: {entity?.from_address}</Text>
+...
 
+</View>
 
 
           <View style={styles.buttonContainer}>

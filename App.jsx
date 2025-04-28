@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { ThemeProvider } from './src/theme/ThemeProvider';
-
+import axios from 'axios';
+import { BASEPATH } from './src/screen/config';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,12 +18,34 @@ import ClaimsScreen from './src/screen/ClaimsScreen/ClaimsScreen';
 import ApprovalsScreen from './src/screen/ApprovalsScreen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen/ClaimSubmitScreen';
-
+import NotificationScreen from './src/screen/NotificationScreen/NotificationScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const BottomTabs = () => (
+
+const BottomTabs = () => {
+  // const fetchData = async () =>{
+  //   try{
+  //     const response = await axios({
+  //       method: 'get',
+  //       url:`http://192.168.0.22:8081/v1/client/ocr_model_check/ocr_checks_creator/`,
+  //     }).then((res)=>{
+  //       console.log("we->>>>>>>>>>>",res)
+  //     })
+  //   }catch(error){
+  //         console.log("Error:",error);
+  //   }
+  // }
+  //     useEffect(() =>{
+  //       console.log("test")
+        
+  //        fetchData();
+
+  //     }, []);
+  
+  
+  return(
   <Tab.Navigator screenOptions={{ headerShown: false, tabBarShowLabel: true , animation:"shift", tabBarActiveTintColor: '#7E8356', 
     tabBarInactiveTintColor: 'gray',}} >
     <Tab.Screen 
@@ -54,7 +77,7 @@ const BottomTabs = () => (
       }} 
     />
   </Tab.Navigator>
-);
+);}
 
 const App = () => {
   return (
@@ -71,6 +94,7 @@ const App = () => {
         <Stack.Screen name="Claims" component={ClaimsScreen} options={{headerShown:false}}/>
         <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Approvals" component={ApprovalsScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="Notification" component={NotificationScreen} options={{headerShown:false}}/>
         
       </Stack.Navigator>
     </NavigationContainer>
