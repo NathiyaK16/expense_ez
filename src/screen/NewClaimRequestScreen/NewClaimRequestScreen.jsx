@@ -184,8 +184,23 @@ const NewClaimRequestScreen = ({ navigation }) => {
 //   }
 //   return true; 
 // };
-const handleSubmit = () => {
-  if (!mainCategory || !subCategory || !amount) {
+// const handleSubmit = () => {
+//   if (!mainCategory || !subCategory ) {
+//     return Alert.alert("Missing Fields", "Please fill all the fields before submitting.");
+//   }
+
+//   // const parsedAmount = parseFloat(amount);
+//   // if (isNaN(parsedAmount) || parsedAmount <= 0) {
+//   //   return Alert.alert("Invalid Amount", "Please enter a valid amount greater than 0.");
+//   // }
+
+//   navigation.navigate('SubmitClaim');
+// };
+
+
+const handleSubmit = async () => {
+  console.log("Submit Button Pressed");
+  if (!mainCategory || !subCategory || !amount || !selectedImage) {
     return Alert.alert("Missing Fields", "Please fill all the fields before submitting.");
   }
 
@@ -194,10 +209,92 @@ const handleSubmit = () => {
     return Alert.alert("Invalid Amount", "Please enter a valid amount greater than 0.");
   }
 
-  navigation.navigate('SubmitClaim');
+  
+  const payload = {
+    // employee_claim_data: [
+    //   {
+    //     company_id: "durr",
+    //     policy_id: " ", 
+    //     expense_head: mainCategory,
+    //     subexpense_head: subCategory,
+    //     claim_status: "normal",
+    //     claim_type: "regular",
+    //     emp_id: "", 
+    //     year: "2025", 
+    //     //advance_id: 71, 
+    //     //descriptions: "hello", 
+    //     document: [
+    //       {
+    //         ocr_amount: entity?.total || amount,
+    //         ocr_date: date.toISOString().split("T")[0],
+    //         booking_id: "", 
+    //         ride_id: "", 
+    //         from_address: "", 
+    //         to_address: "", 
+    //         doc_name: "", 
+    //         distance: "", 
+    //         gst_no: "", 
+    //         times: "", 
+    //         invoice_no: "", 
+    //         page1: `data:image/jpeg;base64,${selectedImage.base64}`, 
+    //         type: "image", 
+    //         amount: entity?.total || amount, 
+    //         date: date.toISOString().split("T")[0],
+    //       }
+    //     ]
+    //   }
+    // ]
+
+    employee_claim_data: [
+      {
+        company_id: "durr",
+        policy_id: "some_valid_policy_id", // Replace with valid value
+        expense_head: mainCategory,
+        subexpense_head: subCategory,
+        claim_status: "normal",
+        claim_type: "regular",
+        emp_id: "your_employee_id", // Replace with actual emp_id
+        year: "2025",
+        document: [
+          {
+            ocr_amount: entity?.total || amount,
+            ocr_date: date.toISOString().split("T")[0],
+            page1: `data:image/jpeg;base64,${selectedImage.base64}`,
+            type: "image",
+            amount: amount,
+            date: date.toISOString().split("T")[0],  // Ensure this is a string formatted date
+          }
+        ]
+      }
+    ]
+    
+  };
+
+  try {
+    setLoading(true); 
+
+    const response = await axios.post(
+      `${BASEPATH}v1/client/ocr_inserts/ocr_inserting/`, 
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+const data = response.data;
+console.log(data);
+    if (response?.data?.success) {
+      
+      navigation.navigate('SubmitClaim'); 
+    } else {
+      Alert.alert('Error', 'Failed to submit claim.');
+    }
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Error', 'Something went wrong while submitting the claim.');
+  } 
 };
-
-
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -247,8 +344,8 @@ const handleSubmit = () => {
 
           {subCategory && (
             <View style={[styles.inputGroup, { paddingTop: 10 }]}>
-              {/* <Text style={[styles.label, { color: theme.text }]}>Policy Details</Text> */}
               <View style={styles.policyHeader}>
+
   <Text style={[styles.label, { color: theme.text }]}>View Policy</Text>
   <TouchableOpacity onPress={() => setShowPolicyDetails(!showPolicyDetails)}>
     <Icon
@@ -357,12 +454,89 @@ const handleSubmit = () => {
 
 
 </View>
-<View>
-<Text>Bill No: {entity?.bill_no}</Text>
-<Text>Date: {entity?.date}</Text>
-<Text>From: {entity?.from_address}</Text>
-...
 
+
+  {entity?.date && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Date</Text>
+      <TextInput
+        value={entity.date}
+        editable={true}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+      <Text style={styles.note}>Change the date if it is incorrect.</Text>
+    </View>
+  )}
+
+{entity?.total && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Total</Text>
+      <TextInput
+        value={entity.total}
+        editable={true}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+<View>
+  
+  {entity?.bill_no && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Bill No</Text>
+      <TextInput
+        value={entity.bill_no}
+        editable={false}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+  {entity?.from_address && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>From Address</Text>
+      <TextInput
+        value={entity.from_address}
+        editable={false}
+        multiline
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+
+  {entity?.to_address && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>To Address</Text>
+      <TextInput
+        value={entity.to_address}
+        editable={false}
+        multiline
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+
+  {entity?.name && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Name</Text>
+      <TextInput
+        value={entity.name}
+        editable={false}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+
+  {entity?.org && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Organization</Text>
+      <TextInput
+        value={entity.org}
+        editable={false}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+
+  
 </View>
 
 

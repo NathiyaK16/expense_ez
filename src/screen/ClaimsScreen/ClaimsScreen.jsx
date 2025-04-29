@@ -485,36 +485,7 @@ const ClaimsScreen = ({ navigation }) => {
     }
   };
 
-  // const getMainExpenseName = (policyId, expenseId) => {
-  //   console.log("Matching policyId:", policyId, "ExpenseId:", expenseId); // Log for debugging
-  //   if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
-  
-  //   const match = policyDetails.find(
-  //     p => p.policy_detail_id === policyId && p.main_expense_head === expenseId
-  //   );
-  
-  //   if (match) {
-  //     console.log("Main Expense Found:", match); // Log the matched policy for debugging
-  //     return match.expense_head_name;
-  //   }
-  //   return 'N/A';
-  // };
-  
-  // const getSubExpenseName = (policyId, subExpenseId) => {
-  //   console.log("Matching policyId:", policyId, "SubExpenseId:", subExpenseId); // Log for debugging
-  //   if (!policyDetails || !Array.isArray(policyDetails)) return 'N/A';
-  
-  //   const match = policyDetails.find(
-  //     p => p.policy_detail_id === policyId && p.sub_expense_head === subExpenseId
-  //   );
-  
-  //   if (match) {
-  //     console.log("Sub Expense Found:", match); // Log the matched policy for debugging
-  //     return match.sub_expense_name;
-  //   }
-  //   return 'N/A';
-  // };
-  
+ 
   const getMainExpenseName = (policyId, expenseId) => {
     if (!Array.isArray(policyDetails)) return 'N/A';
   
@@ -534,6 +505,7 @@ const ClaimsScreen = ({ navigation }) => {
   
     return match?.sub_expense_name || 'N/A';
   };
+  
   
   const renderClaim = ({ item }) => {
     const document = item.documents?.[0];

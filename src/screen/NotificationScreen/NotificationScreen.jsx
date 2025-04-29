@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 
-const NotificationScreen = () => {
+const NotificationScreen = (navigation) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  //const [updating, setUpdating] = useState(false); // For handling loading state when marking as read
 
   const fetchNotifications = async () => {
     try {
@@ -12,18 +13,23 @@ const NotificationScreen = () => {
       setNotifications(response.data.data);
     } catch (error) {
       console.log('Error fetching notifications:', error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const markAsRead = async (id) => {
+     
     try {
-      await axios.put(`${BASEPATH}v1/client/policy/get_all_policies2/?operation=read&company_id=durr`);
-      fetchNotifications();
+      await axios.put(`${BASEPATH}v1/client/policy/mark_as_read`, { id });
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) =>
+          notification.id === id
+            ? { ...notification, status_of_notifications: 'Read' }
+            : notification
+        )
+      );
     } catch (error) {
       console.error('Error updating notification:', error);
-    }
+    } 
   };
 
   useEffect(() => {
@@ -47,24 +53,23 @@ const NotificationScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
+      
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Notifications</Text>
       </View>
 
-      {/* List */}
+      
       <FlatList
-  data={notifications}
-  keyExtractor={(item) => item.id.toString()}
-  renderItem={renderItem}
-  ListEmptyComponent={
-    <View style={{ alignItems: 'center', marginTop: 20 }}>
-      <Text style={{ fontSize: 16, color: 'gray' }}>No notifications found.</Text>
-    </View>
-  }
-  contentContainerStyle={{ paddingBottom: 20 }}
-/>
-
+        data={notifications}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center', marginTop: 20 }}>
+            <Text style={{ fontSize: 16, color: 'gray' }}>No notifications found.</Text>
+          </View>
+        }
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
     </SafeAreaView>
   );
 };

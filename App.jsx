@@ -25,25 +25,7 @@ const Tab = createBottomTabNavigator();
 
 
 const BottomTabs = () => {
-  // const fetchData = async () =>{
-  //   try{
-  //     const response = await axios({
-  //       method: 'get',
-  //       url:`http://192.168.0.22:8081/v1/client/ocr_model_check/ocr_checks_creator/`,
-  //     }).then((res)=>{
-  //       console.log("we->>>>>>>>>>>",res)
-  //     })
-  //   }catch(error){
-  //         console.log("Error:",error);
-  //   }
-  // }
-  //     useEffect(() =>{
-  //       console.log("test")
-        
-  //        fetchData();
 
-  //     }, []);
-  
   
   return(
   <Tab.Navigator screenOptions={{ headerShown: false, tabBarShowLabel: true , animation:"shift", tabBarActiveTintColor: '#7E8356', 
