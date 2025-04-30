@@ -11,6 +11,8 @@ import { BASEPATH } from '../config';
 import {launchImageLibrary} from 'react-native-image-picker';
 import { PermissionsAndroid, Platform, Linking } from 'react-native';
 import { ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const NewClaimRequestScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -25,6 +27,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [selectedImage, setSelectedImage] = useState(null); 
   const [loading, setLoading] = useState(false); 
   const [entity, setEntity] = useState(null);
+  const [loginData, setLoginData] = useState(null);
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -53,6 +56,26 @@ const NewClaimRequestScreen = ({ navigation }) => {
     navigation.navigate('Claims');
   };
 
+  
+  useEffect(() => {
+    const fetchLoginData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem('loginData');
+        if (storedData) {
+          setLoginData(JSON.parse(storedData));  
+        } else {
+          console.log('No login data found in AsyncStorage.');
+        }
+      } catch (error) {
+        console.error('Error fetching login data:', error);
+      } 
+    };
+
+    fetchLoginData(); 
+  }, []);
+
+  
+  
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
@@ -184,96 +207,71 @@ const NewClaimRequestScreen = ({ navigation }) => {
 //   }
 //   return true; 
 // };
-// const handleSubmit = () => {
-//   if (!mainCategory || !subCategory ) {
-//     return Alert.alert("Missing Fields", "Please fill all the fields before submitting.");
-//   }
 
-//   // const parsedAmount = parseFloat(amount);
-//   // if (isNaN(parsedAmount) || parsedAmount <= 0) {
-//   //   return Alert.alert("Invalid Amount", "Please enter a valid amount greater than 0.");
-//   // }
+function handleSubmit()  {
 
-//   navigation.navigate('SubmitClaim');
-// };
-
-
-const handleSubmit = async () => {
-  console.log("Submit Button Pressed");
-  if (!mainCategory || !subCategory || !amount || !selectedImage) {
-    return Alert.alert("Missing Fields", "Please fill all the fields before submitting.");
-  }
-
-  const parsedAmount = parseFloat(amount);
-  if (isNaN(parsedAmount) || parsedAmount <= 0) {
-    return Alert.alert("Invalid Amount", "Please enter a valid amount greater than 0.");
-  }
 
   
-  const payload = {
-    // employee_claim_data: [
-    //   {
-    //     company_id: "durr",
-    //     policy_id: " ", 
-    //     expense_head: mainCategory,
-    //     subexpense_head: subCategory,
-    //     claim_status: "normal",
-    //     claim_type: "regular",
-    //     emp_id: "", 
-    //     year: "2025", 
-    //     //advance_id: 71, 
-    //     //descriptions: "hello", 
-    //     document: [
-    //       {
-    //         ocr_amount: entity?.total || amount,
-    //         ocr_date: date.toISOString().split("T")[0],
-    //         booking_id: "", 
-    //         ride_id: "", 
-    //         from_address: "", 
-    //         to_address: "", 
-    //         doc_name: "", 
-    //         distance: "", 
-    //         gst_no: "", 
-    //         times: "", 
-    //         invoice_no: "", 
-    //         page1: `data:image/jpeg;base64,${selectedImage.base64}`, 
-    //         type: "image", 
-    //         amount: entity?.total || amount, 
-    //         date: date.toISOString().split("T")[0],
-    //       }
-    //     ]
-    //   }
-    // ]
+  const mainCategoryData = mainCategories.find(item => item.name === mainCategory);
 
+const selectedPolicy = policyMap[mainCategory]?.find(
+  policy => policy.sub_expense_name === subCategory
+);
+
+
+if (!selectedPolicy) {
+  return Alert.alert("Error", "Could not find matching policy details.");
+}
+
+
+const policyId = selectedPolicy.policy_detail_id; 
+ 
+const mainExpenseHeadId = mainCategoryData?.id;
+
+const subExpenseHeadId = selectedPolicy.sub_expense_head;  
+
+
+
+  const payload = {
     employee_claim_data: [
       {
-        company_id: "durr",
-        policy_id: "some_valid_policy_id", // Replace with valid value
-        expense_head: mainCategory,
-        subexpense_head: subCategory,
+        company_id:loginData?.company_id,
+        policy_id: policyId,               
+        expense_head_id: mainExpenseHeadId,             
+      subexpense_head_id: subExpenseHeadId, 
+      
         claim_status: "normal",
         claim_type: "regular",
-        emp_id: "your_employee_id", // Replace with actual emp_id
-        year: "2025",
+        emp_id: loginData?.emp_id, 
+        year: "2025", 
+        //advance_id: 71, 
+        //descriptions: "hello", 
         document: [
           {
-            ocr_amount: entity?.total || amount,
-            ocr_date: date.toISOString().split("T")[0],
-            page1: `data:image/jpeg;base64,${selectedImage.base64}`,
-            type: "image",
-            amount: amount,
-            date: date.toISOString().split("T")[0],  // Ensure this is a string formatted date
+            ocr_amount: entity?.total,
+            ocr_date: entity?.date,
+            booking_id: "", 
+            ride_id: entity?.bill_no, 
+            from_address: entity?.from_address, 
+            to_address: entity?.to_address, 
+            doc_name: entity?.org, 
+            distance: "", 
+            gst_no: "", 
+            times: "", 
+            invoice_no: "", 
+            page1: `data:image/jpeg;base64,${selectedImage.base64}`, 
+            type: "image", 
+            amount: entity?.total, 
+            date: entity?.date,
           }
         ]
       }
-    ]
-    
+    ]    
   };
-
+  console.log("Payload", payload);
   try {
-    setLoading(true); 
 
-    const response = await axios.post(
+    const response =  axios.post(
       `${BASEPATH}v1/client/ocr_inserts/ocr_inserting/`, 
       payload,
       {
@@ -282,10 +280,9 @@ const handleSubmit = async () => {
         }
       }
     );
-const data = response.data;
-console.log(data);
-    if (response?.data?.success) {
-      
+
+    if (response?.data?.status === 200){
+      console.log("Full response from API:", response.data);
       navigation.navigate('SubmitClaim'); 
     } else {
       Alert.alert('Error', 'Failed to submit claim.');
@@ -376,7 +373,7 @@ console.log(data);
               })()}
             </View>
           )}
-        <View style={styles.row}>
+        {/* <View style={styles.row}>
           <View style={[styles.inputGroup,styles.halfInput]}>
             <Text style={[styles.label, { color: theme.text }]}>Amount</Text>
             <View style={[styles.amountContainer, { borderColor: theme.borderColor }]}>
@@ -392,7 +389,7 @@ console.log(data);
             </View>
           </View>
 
-          <View style={[styles.inputGroup,styles.halfInput]}>
+           <View style={[styles.inputGroup,styles.halfInput]}>
             <Text style={[styles.label, { color: theme.text }]}>Date</Text>
             <TouchableOpacity
               style={[styles.datePickerButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
@@ -409,8 +406,8 @@ console.log(data);
                 onChange={onDateChange}
               />
             )}
-          </View>
-          </View>
+          </View> 
+          </View> */}
           
 <View style={styles.inputGroup}>
  
@@ -458,12 +455,20 @@ console.log(data);
 
   {entity?.date && (
     <View style={{ marginBottom: 10 }}>
-      <Text>Date</Text>
+       <Text>Date</Text>
       <TextInput
         value={entity.date}
         editable={true}
         style={{ borderWidth: 1, padding: 8 }}
-      />
+      /> 
+      {/* <TouchableOpacity
+   style={[styles.datePickerButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
+   onPress={() => setShowDatePicker(true)}
+>
+   <Text style={[styles.dateText, { color: theme.text }]}>{formatDate(date)}</Text>
+   <Icon name="calendar-outline" size={20} color={theme.text} />
+</TouchableOpacity> */}
+     
       <Text style={styles.note}>Change the date if it is incorrect.</Text>
     </View>
   )}
@@ -549,7 +554,7 @@ console.log(data);
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.submitButton, { backgroundColor: theme.buttonBg }]}
-              onPress={handleSubmit}
+              onPress={(e)=>handleSubmit(e)}
             >
               <Text style={[styles.submitButtonText, { color: theme.buttonTextColor }]}>Submit</Text>
             </TouchableOpacity>

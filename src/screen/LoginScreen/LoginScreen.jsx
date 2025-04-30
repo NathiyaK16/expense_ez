@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useTheme } from "../../theme/useTheme";
 import { BASEPATH } from "../config";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const LoginScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const [username, setUsername] = useState('');
@@ -17,51 +17,52 @@ const LoginScreen = ({ navigation }) => {
   const handlePasswordChange = (text) => setPassword(text);
   const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
-  const handleLogin = () => {
-    if (username && companyname && password) {
-      navigation.replace('MainTabs');
-    } else {
-      Alert.alert("Please enter all credentials");
-    }
-  };
+  // const handleLogin = () => {
+  //   if (username && companyname && password) {
+  //     navigation.replace('MainTabs');
+  //   } else {
+  //     Alert.alert("Please enter all credentials");
+  //   }
+  // };
 
   const handleForgetPassword = () => {
     navigation.navigate('ForgetPassword');
   };
-  // const handleLogin=async()=>{ 
-  //   if (username && companyname && password) {
-  //   const formData = {
-  //     "company_id" :companyname,
-  //     "emp_id" : username,
-  //     "password" : password, 
-  // }
-  //   try{
-  //     const response = await axios({
-  //       method:"post",
-  //       url:`${BASEPATH}v1/expensez/login/`,
-  //       data: formData,
-  //       headers: {
-  //         'Content-Type': 'application/json',  
-  //       }
-  //     }).then((res)=>{
-  //       console.log('Response:--->>>>>>>>>>>>>>>>>>>>>>>>>>>>', res.data);
-  //       navigation.replace('MainTabs');
-  //     }).catch(()=>{
-  //       Alert.alert("Something went wrong");
-  //     })
+  const handleLogin=async()=>{ 
+    if (username && companyname && password) {
+    const formData = {
+      "company_id" :companyname,
+      "emp_id" : username,
+      "password" : password, 
+  }
+    try{
+      const response = await axios({
+        method:"post",
+        url:`${BASEPATH}v1/expensez/login/`,
+        data: formData,
+        headers: {
+          'Content-Type': 'application/json',  
+        }
+      }).then((res)=>{
+        console.log('Response:', res.data);
+         AsyncStorage.setItem('loginData', JSON.stringify(res.data.data));
+        navigation.replace('MainTabs');
+      }).catch(()=>{
+        Alert.alert("Something went wrong");
+      })
       
-  //     if(response && response?.data && response?.data?.status== 200){
-  //       navigation.replace('MainTabs');
-  //     }
-  //   }
-  //   catch(error){
-  //     console.error("Error:",error);
-  //   }
-  // }else {
-  //       Alert.alert("Please enter all credentials");
-  //     }
+      if(response && response?.data && response?.data?.status== 200){
+        navigation.replace('MainTabs');
+      }
+    }
+    catch(error){
+      console.error("Error:",error);
+    }
+  }else {
+        Alert.alert("Please enter all credentials");
+      }
      
-  //     }
+      }
 
   return (
     <View style={[styles.container, {backgroundColor:theme.background}]}>
