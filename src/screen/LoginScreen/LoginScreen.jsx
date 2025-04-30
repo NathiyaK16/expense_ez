@@ -34,7 +34,7 @@ const LoginScreen = ({ navigation }) => {
       "company_id" :companyname,
       "emp_id" : username,
       "password" : password, 
-  }
+   }
     try{
       const response = await axios({
         method:"post",
@@ -61,9 +61,35 @@ const LoginScreen = ({ navigation }) => {
   }else {
         Alert.alert("Please enter all credentials");
       }
-     
+  // try {
+  //   const response = await axios.post(`${BASEPATH}v1/expensez/login/`, formData, {
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   });
+  
+  //   console.log('API Response:', response); // Log the full response
+  
+  //   // Check if response.data exists and contains data
+  //   if (response?.data?.status === 200) {
+  //     console.log("Response Data:", response.data.data); // Log the actual data
+  //     if (response.data.data) {
+  //       await AsyncStorage.setItem('loginData', JSON.stringify(response.data.data));
+  //       navigation.replace('MainTabs');
+  //     } else {
+  //       console.error("No login data found in response.");
+  //       Alert.alert("Login failed", "No data returned from server.");
+  //     }
+  //   } else {
+  //     Alert.alert("Login failed", response.data?.message || "Invalid credentials");
+  //   }
+  // } catch (error) {
+  //   console.error("Error during login:", error);
+  //   Alert.alert("Something went wrong", "Please try again later.");
+  // }
+  
       }
-
+    
   return (
     <View style={[styles.container, {backgroundColor:theme.background}]}>
       <Text style={[styles.title, {color:theme.text}]}>Welcome!</Text>
