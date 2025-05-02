@@ -474,18 +474,27 @@ const ClaimsScreen = ({ navigation }) => {
 //     Rejected: { backgroundColor: '#ffebeb', color: '#d32f2f' }, // Light Red
 // };
 
+  // const getStatusColor = status => {
+  //   switch (status) {
+  //     case 'approved':
+  //       return '#065f46';
+  //     case 'pending':
+  //       return '#b58900';
+  //     case 'rejected':
+  //       return '#d32f2f';
+  //   }
+  // };
+
   const getStatusColor = status => {
     switch (status) {
-      case 'approved':
-        return '#219e4f';
-      case 'pending':
-        return '#7d421e';
-      case 'rejected':
-        return '#F44336';
-    }
+      case 'Approved':
+        return '#065f46';
+      case 'Pending':
+        return '#b58900';
+      case 'Rejected':
+        return '#d32f2f';
+          }
   };
-
- 
   const getMainExpenseName = (policyId, expenseId) => {
     if (!Array.isArray(policyDetails)) return 'N/A';
   

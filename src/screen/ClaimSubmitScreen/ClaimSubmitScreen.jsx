@@ -1,5 +1,5 @@
 import React from "react";
-import { SafeAreaView, StyleSheet,Text, TouchableOpacity, View } from "react-native";
+import {StyleSheet,Text, TouchableOpacity, View } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome6';
 
 
@@ -9,7 +9,7 @@ const ClaimSubmitScreen =({navigation}) =>{
         navigation.navigate('NewClaimRequest')
     }
     return(
-        // <SafeAreaView>
+
         <View style ={Styles.container}>
             <View style={Styles.iconContainer}>
             <Icon style={Styles.icon} name='check-double' size={30} color='#7E8356'/>
