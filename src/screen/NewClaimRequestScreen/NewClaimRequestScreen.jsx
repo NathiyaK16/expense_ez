@@ -27,7 +27,9 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [selectedImage, setSelectedImage] = useState(null); 
   const [loading, setLoading] = useState(false); 
   const [entity, setEntity] = useState(null);
-  const [loginData, setLoginData] = useState(null);
+  const [companyId, setCompanyId] = useState('');
+const [empId, setEmpId] = useState('');
+
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -55,25 +57,7 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const handleCancel = () => {
     navigation.navigate('Claims');
   };
-
   
-  useEffect(() => {
-    const fetchLoginData = async () => {
-      try {
-        const storedData = await AsyncStorage.getItem('loginData');
-        if (storedData) {
-          setLoginData(JSON.parse(storedData));  
-        } else {
-          console.log('No login data found in AsyncStorage.');
-        }
-      } catch (error) {
-        console.error('Error fetching login data:', error);
-      } 
-    };
-
-    fetchLoginData(); 
-  }, []);
-
   
   
   useEffect(() => {
@@ -207,10 +191,24 @@ const NewClaimRequestScreen = ({ navigation }) => {
 //   }
 //   return true; 
 // };
+useEffect(() => {
+  const loadData = async () => {
+    try {
+      const storedCompanyId = await AsyncStorage.getItem('companyname');
+      const storedEmpId = await AsyncStorage.getItem('username');
 
-function handleSubmit()  {
+      if (storedCompanyId) setCompanyId(storedCompanyId);
+      if (storedEmpId) setEmpId(storedEmpId);
+    } catch (error) {
+      console.error("Failed to load user data", error);
+    }
+  };
 
+  loadData();
+}, []);
+const handleSubmit = async()=> {
 
+//function handleSubmit () {
   
   const mainCategoryData = mainCategories.find(item => item.name === mainCategory);
 
@@ -232,17 +230,53 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
 
 
 
-  const payload = {
+ const payload = 
+//  {
+//   "employee_claim_data": [
+//       {
+// "company_id":"durr",
+//           "policy_id": 474,
+//           "expense_head": 116,
+//           "subexpense_head": 100,
+//           "claim_status":"normal",
+//           "claim_type":"regular",
+//           "emp_id": "durr79",
+//           "year":"2025",
+//           "advance_id":88,
+//          "descriptions":"hello",
+//           "document": [
+//               {
+//                   "ocr_amount": "500",
+//                   "ocr_date": "2021-01-22",
+//                   "booking_id":"abc123",
+//                   "ride_id":"abc123",
+//                   "from_address":"abc123",
+//                   "to_address":"abc123",
+//                   "doc_name":"abc123",
+//                   "distance":"abc123",
+//                   "gst_no":"abc123",
+//                   "times":"abc123",
+//                   "invoice_no":"abc123",
+//                   "page1": `data:image/jpeg;base64,${selectedImage.base64}`,
+// "type": "image",
+//                   "amount": 1000.00,
+//                   "date": "2021-01-22"
+//               }
+//           ]
+//       }
+//   ]
+// }
+{
     employee_claim_data: [
       {
-        company_id:loginData?.company_id,
+        company_id:companyId,
         policy_id: policyId,               
         expense_head_id: mainExpenseHeadId,             
       subexpense_head_id: subExpenseHeadId, 
       
         claim_status: "normal",
         claim_type: "regular",
-        emp_id: loginData?.emp_id, 
+        emp_id: empId, 
         year: "2025", 
         //advance_id: 71, 
         //descriptions: "hello", 
@@ -269,9 +303,9 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
     ]    
   };
   console.log("Payload", payload);
-  try {
+    try {
 
-    const response =  axios.post(
+    const response = await axios.post(
       `${BASEPATH}v1/client/ocr_inserts/ocr_inserting/`, 
       payload,
       {
@@ -280,17 +314,20 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
         }
       }
     );
-
     if (response?.data?.status === 200){
       console.log("Full response from API:", response.data);
       navigation.navigate('SubmitClaim'); 
-    } else {
+      } else {
       Alert.alert('Error', 'Failed to submit claim.');
     }
+  
+   
   } catch (error) {
     console.error(error);
     Alert.alert('Error', 'Something went wrong while submitting the claim.');
   } 
+  
+  
 };
 
   return (

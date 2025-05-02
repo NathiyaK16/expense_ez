@@ -19,6 +19,7 @@ import ApprovalsScreen from './src/screen/ApprovalsScreen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen/ClaimSubmitScreen';
 import NotificationScreen from './src/screen/NotificationScreen/NotificationScreen';
+import ViewClaimScreen from './src/screen/ViewClaimScreen/ViewClaimScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -74,6 +75,7 @@ const App = () => {
         <Stack.Screen name="CreatePassword" component={CreatePasswordScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Claims" component={ClaimsScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="ViewClaim" component={ViewClaimScreen} options={{headerShown:false}}/>
         <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Approvals" component={ApprovalsScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Notification" component={NotificationScreen} options={{headerShown:false}}/>

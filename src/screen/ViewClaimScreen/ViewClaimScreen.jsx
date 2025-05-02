@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import axios from 'axios';
 import { useTheme } from '../../theme/useTheme';
 
-const ClaimDocumentScreen = ({ navigation }) => {
+const ViewClaimScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const claimId = navigation.getParam('claimId'); // Accessing the claimId passed from ClaimsScreen
   const [documentDetails, setDocumentDetails] = useState(null);
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ClaimDocumentScreen;
+export default ViewClaimScreen;
