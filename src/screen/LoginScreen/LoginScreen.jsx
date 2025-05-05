@@ -209,45 +209,45 @@ const LoginScreen = ({ navigation }) => {
   const handleForgetPassword = () => {
     navigation.navigate('ForgetPassword');
   };
-  const handleLogin = () => {
-    if (username && companyname && password) {
-      navigation.replace('MainTabs');
-    } else {
-      Alert.alert("Please enter all credentials");
-    }
-  };
-  // const handleLogin = async () => {
-  //   if (!username || !companyname || !password) {
+  // const handleLogin = () => {
+  //   if (username && companyname && password) {
+  //     navigation.replace('MainTabs');
+  //   } else {
   //     Alert.alert("Please enter all credentials");
-  //     return;
-  //   }
-
-  //   try {
-  //     const formData = {
-  //       company_id: companyname,
-  //       emp_id: username,
-  //       password: password,
-  //     };
-
-  //     const response = await axios.post(`${BASEPATH}v1/expensez/login/`, formData, {
-  //       headers: { 'Content-Type': 'application/json' },
-  //     });
-
-  //     if (response.status === 200) {
-  //       await AsyncStorage.setItem('companyname', companyname);
-  //       await AsyncStorage.setItem('username', username);
-  //       await AsyncStorage.setItem('password', password);
-  //       await AsyncStorage.setItem('loginResponse', JSON.stringify(response.data));
-
-  //       navigation.navigate('MainTabs');
-  //     } else {
-  //       Alert.alert("Login failed", "Invalid credentials.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Login error:", error);
-  //     Alert.alert("Error", "Something went wrong during login.");
   //   }
   // };
+  const handleLogin = async () => {
+    if (!username || !companyname || !password) {
+      Alert.alert("Please enter all credentials");
+      return;
+    }
+
+    try {
+      const formData = {
+        company_id: companyname,
+        emp_id: username,
+        password: password,
+      };
+
+      const response = await axios.post(`${BASEPATH}v1/expensez/login/`, formData, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.status === 200) {
+        await AsyncStorage.setItem('companyname', companyname);
+        await AsyncStorage.setItem('username', username);
+        await AsyncStorage.setItem('password', password);
+        await AsyncStorage.setItem('loginResponse', JSON.stringify(response.data));
+
+        navigation.navigate('MainTabs');
+      } else {
+        Alert.alert("Login failed", "Invalid credentials.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Alert.alert("Error", "Something went wrong during login.");
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>

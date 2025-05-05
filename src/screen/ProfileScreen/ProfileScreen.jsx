@@ -6,11 +6,25 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import Fontisto from "react-native-vector-icons/Fontisto";
 import { useTheme } from "../../theme/useTheme";
-
+import { launchImageLibrary } from 'react-native-image-picker';
 const ProfileScreen = ({ navigation }) => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const { theme, themeName, toggleTheme } = useTheme();
+  const [profileImage, setProfileImage] = useState("");
 
+
+  const handleEditProfileImage = () => {
+    launchImageLibrary({ mediaType: 'photo' }, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else {
+        const uri = response.assets[0].uri;
+        setProfileImage(uri);
+      }
+    });
+  };
   const handleLogoutConfirm = () => {
     setLogoutModalVisible(false);
     navigation.navigate("Login");
@@ -38,7 +52,7 @@ const ProfileScreen = ({ navigation }) => {
               source={{ uri: "https://randomuser.me/api/portraits/men/1.jpg" }}
               style={Styles.avatar}
             />
-            <TouchableOpacity style={Styles.editButton}>
+            <TouchableOpacity style={Styles.editButton} onPress={handleEditProfileImage}>
               <Icon name="edit" size={16} color="blue" />
             </TouchableOpacity>
           </View>

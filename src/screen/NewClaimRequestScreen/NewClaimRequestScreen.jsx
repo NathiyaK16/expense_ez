@@ -208,8 +208,6 @@ useEffect(() => {
 }, []);
 const handleSubmit = async()=> {
 
-//function handleSubmit () {
-  
   const mainCategoryData = mainCategories.find(item => item.name === mainCategory);
 
 const selectedPolicy = policyMap[mainCategory]?.find(
@@ -231,77 +229,43 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
 
 
  const payload = 
-//  {
-//   "employee_claim_data": [
-//       {
-// "company_id":"durr",
-//           "policy_id": 474,
-//           "expense_head": 116,
-//           "subexpense_head": 100,
-//           "claim_status":"normal",
-//           "claim_type":"regular",
-//           "emp_id": "durr79",
-//           "year":"2025",
-//           "advance_id":88,
-//          "descriptions":"hello",
-//           "document": [
-//               {
-//                   "ocr_amount": "500",
-//                   "ocr_date": "2021-01-22",
-//                   "booking_id":"abc123",
-//                   "ride_id":"abc123",
-//                   "from_address":"abc123",
-//                   "to_address":"abc123",
-//                   "doc_name":"abc123",
-//                   "distance":"abc123",
-//                   "gst_no":"abc123",
-//                   "times":"abc123",
-//                   "invoice_no":"abc123",
-//                   "page1": `data:image/jpeg;base64,${selectedImage.base64}`,
-// "type": "image",
-//                   "amount": 1000.00,
-//                   "date": "2021-01-22"
-//               }
-//           ]
-//       }
-//   ]
-// }
-{
-    employee_claim_data: [
-      {
-        company_id:companyId,
-        policy_id: policyId,               
-        expense_head_id: mainExpenseHeadId,             
-      subexpense_head_id: subExpenseHeadId, 
-      
-        claim_status: "normal",
-        claim_type: "regular",
-        emp_id: empId, 
-        year: "2025", 
-        //advance_id: 71, 
-        //descriptions: "hello", 
-        document: [
-          {
-            ocr_amount: entity?.total,
-            ocr_date: entity?.date,
-            booking_id: "", 
-            ride_id: entity?.bill_no, 
-            from_address: entity?.from_address, 
-            to_address: entity?.to_address, 
-            doc_name: entity?.org, 
-            distance: "", 
-            gst_no: "", 
-            times: "", 
-            invoice_no: "", 
-            page1: `data:image/jpeg;base64,${selectedImage.base64}`, 
-            type: "image", 
-            amount: entity?.total, 
-            date: entity?.date,
-          }
-        ]
-      }
-    ]    
-  };
+
+ {
+  employee_claim_data: [
+    {
+      company_id: companyId.toString(),
+      policy_id: policyId,
+      expense_head: mainExpenseHeadId,
+      subexpense_head: subExpenseHeadId,
+      claim_status: "normal",
+      claim_type: "regular",
+      emp_id: empId.toString(),
+      year: "2025",
+      advance_id: 71,
+      descriptions: "hello",
+      document: [
+        {
+          ocr_amount: Number(entity?.total),
+          ocr_date: entity?.date,
+          booking_id: entity?.bill_no || "N/A",
+          ride_id: entity?.bill_no || "N/A",
+          from_address: entity?.from_address || "N/A",
+          to_address: entity?.to_address || "N/A",
+          doc_name: entity?.org || "N/A",
+          distance: "N/A",
+          gst_no: "N/A",
+          times: "N/A",
+          invoice_no: "N/A",
+          page1: `data:image/jpeg;base64,${selectedImage.base64}`,
+          type: "image",
+          amount: Number(entity?.total),
+          date: entity?.date,
+        },
+      ],
+    },
+  ],
+};
+
   console.log("Payload", payload);
     try {
 
