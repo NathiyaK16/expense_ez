@@ -247,15 +247,15 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
         {
           ocr_amount: Number(entity?.total),
           ocr_date: entity?.date,
-          booking_id: entity?.bill_no || "N/A",
-          ride_id: entity?.bill_no || "N/A",
-          from_address: entity?.from_address || "N/A",
-          to_address: entity?.to_address || "N/A",
-          doc_name: entity?.org || "N/A",
-          distance: "N/A",
-          gst_no: "N/A",
-          times: "N/A",
-          invoice_no: "N/A",
+          booking_id: entity?.bill_no || "",
+          ride_id: entity?.bill_no || "",
+          from_address: entity?.from_address || "",
+          to_address: entity?.to_address || "",
+          doc_name: entity?.org || "",
+          distance: entity?.distance || "",
+          gst_no: entity?.gstno || "",
+          times: entity?.time || "",
+          invoice_no: entity?.invoiceno || "",
           page1: `data:image/jpeg;base64,${selectedImage.base64}`,
           type: "image",
           amount: Number(entity?.total),
@@ -313,7 +313,7 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
                   setMainCategory(value);
                   setSubCategory(null);
                 }}>
-                <Picker.Item label="Select Main Category" value={null} />
+                <Picker.Item label="Select Main Category" value="" enabled={false} />
                 {mainCategories.map(item => (
                   <Picker.Item key={item.id} label={item.name} value={item.name} />
                 ))}
@@ -325,7 +325,7 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: theme.text }]}>Sub Expense Category</Text>
               <View style={[styles.pickerContainer, { backgroundColor: theme.background, borderColor: theme.borderColor }]}>
-                <Picker
+                {/* <Picker
                   selectedValue={subCategory}
                   style={[styles.picker, { color: theme.text }]}
                   dropdownIconColor={theme.text}
@@ -334,7 +334,23 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
                   {policyMap[mainCategory]?.map((item, index) => (
                     <Picker.Item key={index} label={item.sub_expense_name} value={item.sub_expense_name} />
                   ))}
-                </Picker>
+                </Picker> */}
+                <Picker
+  selectedValue={subCategory}
+  style={[styles.picker, { color: theme.text }]}
+  dropdownIconColor={theme.text}
+  onValueChange={setSubCategory}
+>
+  <Picker.Item label="Select Subcategory" value="" enabled={false} />
+  {(policyMap[mainCategory] || []).map((item, index) => (
+    <Picker.Item
+      key={index}
+      label={item.sub_expense_name}
+      value={item.sub_expense_name}
+    />
+  ))}
+</Picker>
+
               </View>
             </View>
           )}
@@ -496,6 +512,26 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
       />
     </View>
   )}
+  {entity?.time && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Time</Text>
+      <TextInput
+        value={entity.org}
+        editable={false}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+   {entity?.distance && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Distance</Text>
+      <TextInput
+        value={entity.distance}
+        editable={false}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
   {entity?.from_address && (
     <View style={{ marginBottom: 10 }}>
       <Text>From Address</Text>
@@ -534,6 +570,28 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
   {entity?.org && (
     <View style={{ marginBottom: 10 }}>
       <Text>Organization</Text>
+      <TextInput
+        value={entity.org}
+        editable={false}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+ 
+  {entity?.gstno && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>GST NO</Text>
+      <TextInput
+        value={entity.gstno}
+        editable={false}
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+    </View>
+  )}
+  
+  {entity?.invoice && (
+    <View style={{ marginBottom: 10 }}>
+      <Text>Invoice No</Text>
       <TextInput
         value={entity.org}
         editable={false}

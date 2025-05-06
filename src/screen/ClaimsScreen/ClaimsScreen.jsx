@@ -381,6 +381,7 @@ import axios from 'axios';
 import { useTheme } from '../../theme/useTheme';
 import { BASEPATH } from '../config';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const ClaimsScreen = ({ navigation }) => {
   const { theme } = useTheme();
   const [claims, setClaims] = useState([]);
@@ -415,7 +416,13 @@ const ClaimsScreen = ({ navigation }) => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=Admin&company_id=durr`);
+      const emp_id = await AsyncStorage.getItem('username');
+      const company_id = await AsyncStorage.getItem('companyname');
+  
+      if (!emp_id || !company_id) {
+        throw new Error('Missing emp_id or company_id in AsyncStorage');
+      }
+      const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
       setClaims(response.data.claims);
       setAllClaims(response.data.claims);
       setPolicyDetails(response.data.policy_details_data);
@@ -672,8 +679,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addClaimText: { color: '#FFFFFF', fontWeight: 'bold' },
-  searchBar: { flexDirection: 'row' },
-  searchInput: { flex: 1, height: 50, paddingHorizontal: 10, borderWidth: 1, borderColor: '#ccc', margin: 10, borderRadius: 10 },
+  searchBar: { 
+    flexDirection: 'row' 
+  },
+  searchInput: {
+     flex: 1, 
+     height: 50, 
+     paddingHorizontal: 10, 
+     borderWidth: 1, 
+     borderColor: '#ccc', 
+     margin: 10, 
+     borderRadius: 10 
+    },
   filterRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, marginBottom: 10 },
   dropdownWrapper: { flex: 1, marginHorizontal: 5 },
   dropdown: { borderColor: '#888', backgroundColor: 'white', minHeight: 40 },
