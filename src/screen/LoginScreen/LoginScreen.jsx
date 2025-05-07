@@ -27,7 +27,7 @@ const LoginScreen = ({ navigation }) => {
   //   } else {
   //     Alert.alert("Please enter all credentials");
   //   }
-  //};
+  // };
   const handleLogin = async () => {
     if (!username || !companyname || !password) {
       Alert.alert("Please enter all credentials");

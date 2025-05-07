@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
   },
   picker: { 
     flex: 1,
-    height: 50 
+    height: 55 
   },
   policyContainer:{
     flexDirection:'row',

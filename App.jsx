@@ -18,7 +18,7 @@ import ClaimsScreen from './src/screen/ClaimsScreen/ClaimsScreen';
 import ApprovalsScreen from './src/screen/ApprovalsScreen/ApprovalsScreen';
 import ProfileScreen from './src/screen/ProfileScreen/ProfileScreen';
 import ClaimSubmitScreen from './src/screen/ClaimSubmitScreen/ClaimSubmitScreen';
-import ClaimNotificationScreen from './src/screen/ClaimNotificationScreen/ClaimNotificationScreen';
+import NotificationScreen from './src/screen/NotificationScreen/NotificationScreen';
 import ViewClaimScreen from './src/screen/ViewClaimScreen/ViewClaimScreen';
 
 const Stack = createNativeStackNavigator();
@@ -78,7 +78,7 @@ const App = () => {
         <Stack.Screen name="ViewClaim" component={ViewClaimScreen} options={{headerShown:false}}/>
         <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Approvals" component={ApprovalsScreen} options={{headerShown:false}}/>
-        <Stack.Screen name="ClaimNotification" component={ClaimNotificationScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="Notification" component={NotificationScreen} options={{headerShown:false}}/>
         
       </Stack.Navigator>
     </NavigationContainer>

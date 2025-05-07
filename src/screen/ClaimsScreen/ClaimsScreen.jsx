@@ -413,31 +413,6 @@ const ClaimsScreen = ({ navigation }) => {
     { label: 'More than 10000', value: 10000 },
     { label: 'All', value: 'all' },
   ];
-
-  const fetchData = async () => {
-    try {
-      const emp_id = await AsyncStorage.getItem('username');
-      const company_id = await AsyncStorage.getItem('companyname');
-  
-      if (!emp_id || !company_id) {
-        throw new Error('Missing emp_id or company_id in AsyncStorage');
-      }
-      const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
-      setClaims(response.data.claims);
-      setAllClaims(response.data.claims);
-      setPolicyDetails(response.data.policy_details_data);
-      console.log('API response:', response.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
- 
-  
-  
   useEffect(() => {
     if (!Array.isArray(allClaims)) return;
     let filtered = allClaims;
@@ -462,8 +437,7 @@ const ClaimsScreen = ({ navigation }) => {
 
     setClaims(filtered);
   }, [dateValue, statusValue, amountValue, allClaims]);
-  
-  
+
   const handleSearch = text => {
     setQuery(text);
     const filtered = allClaims.filter(item =>
@@ -471,6 +445,30 @@ const ClaimsScreen = ({ navigation }) => {
     );
     setClaims(filtered);
   };
+
+  const fetchData = async () => {
+    try {
+      const emp_id = await AsyncStorage.getItem('username');
+      const company_id = await AsyncStorage.getItem('companyname');
+  
+      if (!emp_id || !company_id) {
+        throw new Error('Missing emp_id or company_id in AsyncStorage');
+      }
+      const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+      setClaims(response.data.claims);
+      setAllClaims(response.data.claims);
+      setPolicyDetails(response.data.policy_details_data);
+      console.log('API response:', response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+   
+  
   
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -548,7 +546,7 @@ const ClaimsScreen = ({ navigation }) => {
   
   
   const handleNotification = () => {
-    navigation.navigate('ClaimNotification');
+    navigation.navigate('Notification');
    }
   const handleNewClaim = () => navigation.navigate('NewClaimRequest');
 
@@ -641,14 +639,19 @@ const ClaimsScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { 
+    flex: 1 
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 15,
   },
-  headerTitle: { fontSize: 20, fontWeight: 'bold' },
+  headerTitle: { 
+    fontSize: 20, 
+    fontWeight: 'bold' 
+  },
   claimItem: {
     borderRadius: 10,
     padding: 15,
@@ -656,21 +659,36 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
   },
-  claimContent: { flex: 1 },
+  claimContent: { 
+    flex: 1 
+  },
   claimHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  categoryText: { fontSize: 16, fontWeight: 'bold' },
+  categoryText: { 
+    fontSize: 16, 
+    fontWeight: 'bold' 
+  },
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 15,
   },
-  statusText: { color: '#FFFFFF', fontSize: 12 },
-  dateText: { color: '#666', marginTop: 5 },
-  amountText: { fontSize: 18, fontWeight: 'bold', marginTop: 5 },
+  statusText: { 
+    color: '#FFFFFF', 
+    fontSize: 12 
+  },
+  dateText: { 
+    color: '#666', 
+    marginTop: 5 
+  },
+  amountText: { 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    marginTop: 5 
+  },
   addClaimButton: {
     backgroundColor: '#7E8356',
     padding: 15,
@@ -691,11 +709,29 @@ const styles = StyleSheet.create({
      margin: 10, 
      borderRadius: 10 
     },
-  filterRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, marginBottom: 10 },
-  dropdownWrapper: { flex: 1, marginHorizontal: 5 },
-  dropdown: { borderColor: '#888', backgroundColor: 'white', minHeight: 40 },
-  dropdownText: { color: 'black', fontSize: 14 },
-  dropdownContainer: { backgroundColor: 'white', borderColor: '#888' },
+  filterRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    paddingHorizontal: 10, 
+    marginBottom: 10 
+  },
+  dropdownWrapper: { 
+    flex: 1, 
+    marginHorizontal: 5 
+  },
+  dropdown: { 
+    borderColor: '#888', 
+    backgroundColor: 'white', 
+    minHeight: 40 
+  },
+  dropdownText: { 
+    color: 'black', 
+    fontSize: 14 
+  },
+  dropdownContainer: { 
+    backgroundColor: 'white', 
+    borderColor: '#888' 
+  },
 });
 
 export default ClaimsScreen;
