@@ -1,420 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import {
-//   View,
-//   FlatList,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   ActivityIndicator,
-//   SafeAreaView,
-//   Alert,
-//   TouchableWithoutFeedback,
-//   Keyboard,
-// } from 'react-native';
-// import { Checkbox, Card } from 'react-native-paper';
-// import axios from 'axios';
-// import { BASEPATH } from '../config';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { useTheme } from '../../theme/useTheme';
-// import DropDownPicker from 'react-native-dropdown-picker';
-
-// export default function ApprovalScreen() {
-//   const { theme } = useTheme();
-//   const [query, setQuery] = useState('');
-//   const [approvals, setApprovals] = useState([]);
-//   const [allApprovals, setAllApprovals] = useState([]);
-//   const [selectedItems, setSelectedItems] = useState([]);
-//   const [search, setSearch] = useState('');
-//   const [loading, setLoading] = useState(true);
-
-//   const [dateOpen, setDateOpen] = useState(false);
-//   const [amountOpen, setAmountOpen] = useState(false);
-//   const [dateValue, setDateValue] = useState(null);
-//   const [amountValue, setAmountValue] = useState(null);
-
-//   const dateItems = [
-//     { label: 'Today', value: 'today' },
-//     { label: 'All', value: 'all' }
-//   ];
-
-//   const amountItems = [
-//     { label: 'More than 1000', value: '1000' },
-//     { label: 'More than 5000', value: '5000' },
-//     { label: 'More than 10000', value: '10000' },
-//     { label: 'All', value: 'all' },
-//   ];
-
-//   useEffect(() => {
-//     if (!Array.isArray(allApprovals)) return;
-
-//     let filtered = allApprovals;
-
-//     // if (dateValue === 'today') {
-//     //   const today = new Date().toISOString().split('T')[0];
-//     //   filtered = filtered.filter(item =>
-//     //     new Date(item.created_at).toISOString().split('T')[0] === today
-//     //   );
-//     // }
-//   if (dateValue === 'today') {
-//     const today = new Date();
-//     filtered = filtered.filter(item => {
-//       const createdAt = new Date(item.created_at);
-//       return (
-//         createdAt.getFullYear() === today.getFullYear() &&
-//         createdAt.getMonth() === today.getMonth() &&
-//         createdAt.getDate() === today.getDate()
-//       );
-//     });
-//   }
-//     if (amountValue && amountValue !== 'all') {
-//       filtered = filtered.filter(item => {
-//         const amount = item.documents?.[0]?.entered_amount || 0;
-//         return amount > Number(amountValue);
-//       });
-//     }
-
-//     setApprovals(filtered);
-//   }, [dateValue, amountValue, allApprovals]);
-
-//   useEffect(() => {
-//     fetchApprovals();
-//   }, []);
-
-//   const fetchApprovals = async () => {
-//     setLoading(true);
-//     try {
-//       const emp_id = await AsyncStorage.getItem('username');
-//       const company_id = await AsyncStorage.getItem('companyname');
-//       const response = await axios.get(
-//         `${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`
-//       );
-//       const data = response?.data?.approval_claim_data?.approval_hiery_data || [];
-//       const pendingApprovals = data.filter(item =>
-//         item.status_of_approval?.toLowerCase() === 'pending'
-//       );
-//       setAllApprovals(pendingApprovals);
-//       setApprovals(pendingApprovals);
-//     } catch (error) {
-//       console.error('Axios Error:', error);
-//       Alert.alert('Error', 'Failed to fetch approval data');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleSearch = text => {
-//     setQuery(text);
-//     setSearch(text);
-//   };
-
-//   const toggleSelect = id => {
-//     setSelectedItems(prev =>
-//       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-//     );
-//   };
-
- 
-//   const handleAction = async (actionType) => {
-//     if (selectedItems.length === 0) {
-//       Alert.alert('No items selected', 'Please select at least one claim.');
-//       return;
-//     }
-  
-//     try {
-//       const emp_id = await AsyncStorage.getItem('username');
-//       const company_id = await AsyncStorage.getItem('companyname');
-//       const now = new Date().toISOString();
-  
-//       const updateApprovals = approvals
-//         //.filter(item => selectedItems.includes(item.claim_id.toString()))
-//         .filter(item => selectedItems.includes(item.claim_id.toString()))
-
-//         .map(item => ({
-//           company_id,
-//           claim_id: item.claim_id,
-//           policy_id: item.policy_id,
-//           emp_id: item.emp_id,
-//           levels: item.levels,
-//           approver_id: emp_id,
-//           status_of_approval: actionType === 'approve' ? 'Approved' : 'Rejected',
-//           approved_at: actionType === 'approve' ? now : null,
-//           rejected_at: actionType === 'reject' ? now : null,
-//           rejected_reason: actionType === 'reject' ? 'Rejected by approver' : null,
-//           ...(item.advance_id && { advance_id: item.advance_id }),
-//           ...(item.advance_amount && { advance_amount: item.advance_amount }),
-//         }));
-  
-//       console.log("Update approvals payload: ", updateApprovals);
-  
-//       const response = await axios.patch(
-//         `${BASEPATH}v1/client/ocr_inserts/update_status_approval/`,
-//         { update_approvals: updateApprovals },
-//         { headers: { 'Content-Type': 'application/json' } }
-//       );
-  
-//       console.log("Backend response:", response.data);
-  
-//       if (response.data.status === 'success') {
-//         setApprovals(prev => prev.filter(item => !selectedItems.includes(item.claim_id.toString())));
-//         setAllApprovals(prev => prev.filter(item => !selectedItems.includes(item.claim_id.toString())));
-        
-//         setSelectedItems([]);
-//         Alert.alert('Success', 'Approval status updated successfully');
-//       } else {
-//         Alert.alert('Failed', 'Unable to approve claims.');
-//       }
-  
-//     } catch (error) {
-//       console.error(`${actionType} error:`, error);
-//       Alert.alert('Error', `Something went wrong during ${actionType}.`);
-//     }
-//   };
-  
-  
-  
-  
-//   const renderItem = ({ item }) => (
-//     <Card style={styles.card}>
-//       <View style={styles.cardContent}>
-//         <Checkbox
-//           status={selectedItems.includes(item.claim_id) ? 'checked' : 'unchecked'}
-//           onPress={() => toggleSelect(item.claim_id)}
-//         />
-//         <View style={{ flex: 1 }}>
-//           <Text style={styles.empName}>{item.emp_name || 'Unknown User'}</Text>
-//           <Text style={styles.claimCode}>{item.claim_id}</Text>
-//           <Text style={styles.expenseText}>
-//             <Text style={{ fontWeight: 'bold' }}>{item.expense_head_name}</Text> - {item.sub_expense_head_name}
-//           </Text>
-//         </View>
-//         <View style={styles.rightContent}>
-//           <Text style={styles.amount}>INR. {item.documents?.[0]?.entered_amount?.toFixed(2) ?? '0.00'}</Text>
-//           <Text style={styles.date}>
-//             {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'No Date'}
-//           </Text>
-//         </View>
-//       </View>
-//     </Card>
-//   );
-//   return (
-//     <TouchableWithoutFeedback
-//       onPress={() => {
-//         setDateOpen(false);
-//         setAmountOpen(false);
-//         Keyboard.dismiss();
-//       }}
-//     >
-//       <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-//         <View style={styles.header}>
-//           <Text style={[styles.headerTitle, { color: theme.text }]}>Approvals</Text>
-//         </View>
-
-//         <View style={styles.searchBar}>
-//           <TextInput
-//             style={[styles.searchInput, { color: theme.text }]}
-//             placeholder="Search Employee"
-//             placeholderTextColor="#888"
-//             value={query}
-//             onChangeText={handleSearch}
-//           />
-//         </View>
-
-//         <View style={styles.filterRow}>
-//           <View style={styles.dropdownWrapper}>
-//             <DropDownPicker
-//               open={dateOpen}
-//               value={null}
-//               items={dateItems}
-//               setOpen={setDateOpen}
-//               setValue={setDateValue}
-//               setItems={() => {}}
-//               placeholder="Date"
-//               style={styles.dropdown}
-//               textStyle={styles.dropdownText}
-//               dropDownContainerStyle={styles.dropdownContainer}
-//               zIndex={3000}
-//             />
-//           </View>
-
-//           <View style={styles.dropdownWrapper}>
-//             <DropDownPicker
-//               open={amountOpen}
-//               value={null}
-//               items={amountItems}
-//               setOpen={setAmountOpen}
-//               setValue={setAmountValue}
-//               setItems={() => {}}
-//               placeholder="Amount"
-//               style={styles.dropdown}
-//               textStyle={styles.dropdownText}
-//               dropDownContainerStyle={styles.dropdownContainer}
-//               zIndex={2000}
-//             />
-//           </View>
-//         </View>
-
-//         {loading ? (
-//           <ActivityIndicator size="large" color="#999" style={{ marginTop: 20 }} />
-//         ) : (
-//           <FlatList
-//             data={approvals.filter(item =>
-//               (item.emp_name || '').toLowerCase().includes(search.toLowerCase())
-//             )}
-//             renderItem={renderItem}
-//             keyExtractor={item => item.claim_id.toString()}
-//             contentContainerStyle={{ paddingBottom: 80 }}
-//           />
-//         )}
-
-//         <View style={styles.buttonContainer}>
-//           <TouchableOpacity
-//             style={styles.rejectButton}
-//             onPress={() => handleAction('reject')}
-//           >
-//             <Text style={styles.rejectButtonText}>Reject</Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity
-//             style={styles.approveButton}
-//             onPress={() => handleAction('approve')}
-//           >
-//             <Text style={styles.approveButtonText}>Approve</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </SafeAreaView>
-//     </TouchableWithoutFeedback>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: { flex: 1 },
-//   header: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     padding: 15,
-//   },
-//   headerTitle: { fontSize: 20, fontWeight: 'bold' },
-//   searchBar: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     paddingHorizontal: 10,
-//     marginVertical: 10,
-//   },
-//   searchInput: {
-//     flex: 1,
-//     height: 50,
-//     paddingHorizontal: 10,
-//     borderWidth: 1,
-//     borderColor: '#ccc',
-//     borderRadius: 10,
-//   },
-//   filterRow: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     paddingHorizontal: 10,
-//     marginBottom: 10
-//   },
-//   dropdownWrapper: {
-//     flex: 1,
-//     marginHorizontal: 5
-//   },
-//   dropdown: {
-//     borderColor: '#888',
-//     backgroundColor: 'white',
-//     minHeight: 40
-//   },
-//   dropdownText: {
-//     color: 'black',
-//     fontSize: 14
-//   },
-//   dropdownContainer: {
-//     backgroundColor: 'white',
-//     borderColor: '#888'
-//   },
-//   card: {
-//     marginVertical: 8,
-//     padding: 12,
-//     backgroundColor: '#fff',
-//     borderRadius: 12,
-//     elevation: 2,
-//   },
-//   cardContent: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   empName: {
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//     marginBottom: 4,
-//   },
-//   claimCode: {
-//     fontSize: 12,
-//     color: '#aaa',
-//     marginBottom: 4,
-//   },
-//   expenseText: {
-//     fontSize: 14,
-//     color: '#555',
-//   },
-//   expenseHead: {
-//     fontWeight: 'bold',
-//     fontSize: 14,
-//     color: '#333',
-//   },
-//   rightContent: {
-//     alignItems: 'flex-end',
-//     marginLeft: 10,
-//   },
-//   amount: {
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     color: '#333',
-//     marginBottom: 4,
-//   },
-//   date: {
-//     fontSize: 12,
-//     color: '#999',
-//   },
-//   approveButton: {
-//     flex: 1,
-//     backgroundColor: '#7E8356',
-//     padding: 14,
-//     alignItems: 'center',
-//     borderRadius: 12,
-//     marginLeft: 8,
-//   },
-//   rejectButton: {
-//     flex: 1,
-//     padding: 14,
-//     alignItems: 'center',
-//     borderRadius: 12,
-//     marginRight: 8,
-//     borderWidth: 1,
-//     borderColor: '#7E8356',
-//   },
-//   approveButtonText: {
-//     color: '#fff',
-//     fontWeight: '600',
-//     fontSize: 16,
-//   },
-//   rejectButtonText: {
-//     color: '#7E8356',
-//     fontWeight: '600',
-//     fontSize: 16,
-//   },
-//   buttonContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     paddingHorizontal: 20,
-//     marginTop: 10,
-//   },
-// });
-
-  
-  
-  
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -448,6 +31,7 @@ export default function ApprovalScreen() {
 
   const [dateOpen, setDateOpen] = useState(false);
   const [amountOpen, setAmountOpen] = useState(false);
+  
   const [dateValue, setDateValue] = useState(null);
   const [amountValue, setAmountValue] = useState(null);
 
@@ -557,12 +141,12 @@ export default function ApprovalScreen() {
           levels: item.levels,
           approver_id: emp_id,
           status_of_approval: actionType === 'approve' ? 'Approved' : 'Rejected',
+         
           // approved_at: actionType === 'approve' ? now : null,
           // rejected_at: actionType === 'reject' ? now : null,
-          approved_at: actionType === 'approve' ? now : null,
-          rejected_at: actionType === 'reject' ? now : null,
-
-          rejected_reason: actionType === 'reject' ? 'Rejected by approver' : null,
+          approved_at: actionType === 'approve' ? now : '',
+          rejected_at: actionType === 'reject' ? now : '',
+          rejected_reason: actionType === 'reject' ? 'Rejected by approver' : '',
           ...(item.advance_id && { advance_id: item.advance_id }),
           ...(item.advance_amount && { advance_amount: item.advance_amount }),
         }));
@@ -616,11 +200,13 @@ export default function ApprovalScreen() {
           onPress={() => toggleSelect(String(item.claim_id))}
         />
         <View style={{ flex: 1 }}>
-          <Text style={styles.empName}>{item.emp_name || 'Unknown User'}</Text>
-          <Text style={styles.claimCode}>{item.claim_id}</Text>
-          <Text style={{ color: theme.text }}>
-            <Text style={{ fontWeight: 'bold' }}>{item.expense_head_name}</Text> - {item.sub_expense_head_name}
-          </Text>
+          
+          <Text style={styles.empName}>{item.emp_name}</Text>
+<Text style={styles.claimCode}>Claim ID:{item.claim_id}</Text>
+<Text style={styles.expenseText}>
+  <Text style={{ fontWeight: 'bold' }}>{item.expense_head_name}</Text> - {item.sub_expense_head_name}
+</Text>
+
         </View>
         <View style={styles.rightContent}>
           <Text style={styles.amountText}>INR. {item.documents?.[0]?.entered_amount?.toFixed(2) ?? '0.00'}</Text>
@@ -668,7 +254,7 @@ export default function ApprovalScreen() {
           <View style={styles.dropdownWrapper}>
             <DropDownPicker
               open={dateOpen}
-              value={dateValue}
+              value={null}
               items={dateItems}
               setOpen={setDateOpen}
               setValue={setDateValue}
@@ -684,7 +270,7 @@ export default function ApprovalScreen() {
           <View style={styles.dropdownWrapper}>
             <DropDownPicker
               open={amountOpen}
-              value={amountValue}
+              value={null}
               items={amountItems}
               setOpen={setAmountOpen}
               setValue={setAmountValue}
@@ -783,6 +369,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 50,
     backgroundColor: '#fff',
+    width:'90%',
+    marginLeft:20
   },
   searchIcon: {
     marginRight: 10,
@@ -792,29 +380,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   
-  // approvalItem: {
-  //   borderRadius: 10,
-  //   padding: 15,
-  //   margin: 10,
-  //   borderWidth: 1,
-  //   borderColor: '#ccc',
-  // },
   approvalItem: {
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginHorizontal: 10,
-    marginVertical: 6,  // Reduced from 10
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  
-  // approvalContent: { 
-  //   flex: 1 
-  // },
-  approvalContent: { 
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginVertical: 6,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    elevation: 1,
+  },
+  approvalContent: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+  },
+  rightContent: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    marginLeft: 12,
   },
   
   filterRow: {
@@ -842,16 +430,18 @@ const styles = StyleSheet.create({
   },
   empName: {
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 18,
     color: '#333',
   },
   claimCode: {
-    color: '#666',
-    fontSize: 12,
+    color:'#222',
+    fontSize: 14,
+    padding:5
   },
   expenseText: {
     color: '#444',
-    fontSize: 12,
+    fontSize: 16,
+   
   },
   // rightContent: {
   //   alignItems: 'flex-end',
@@ -859,13 +449,13 @@ const styles = StyleSheet.create({
   //   paddingHorizontal: 10,
   //   paddingVertical: 5,
   // },
-  rightContent: {
-    alignItems: 'flex-end',
-    paddingLeft: 10,
-  },
+  // rightContent: {
+  //   alignItems: 'flex-end',
+  //   paddingLeft: 10,
+  // },
   
   dateText: { 
-    color: '#666', 
+    color: '#222', 
     marginTop: 5 
   },
   amountText: { 

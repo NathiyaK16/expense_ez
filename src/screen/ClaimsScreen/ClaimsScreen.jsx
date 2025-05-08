@@ -375,7 +375,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, FlatList, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import axios from 'axios';
 import { useTheme } from '../../theme/useTheme';
@@ -446,6 +446,73 @@ const ClaimsScreen = ({ navigation }) => {
     setClaims(filtered);
   };
 
+  // const fetchData = async () => {
+  //   try {
+  //     const emp_id = await AsyncStorage.getItem('username');
+  //     const company_id = await AsyncStorage.getItem('companyname');
+  
+  //     if (!emp_id || !company_id) {
+  //       throw new Error('Missing emp_id or company_id in AsyncStorage');
+  //     }
+  //     const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+  //     setClaims(response.data.claims);
+  //     setAllClaims(response.data.claims);
+  //     //setPolicyDetails(response.data.policy_details_data);
+  //     setPolicyDetails(
+  //       Array.isArray(response.data.policyDetail)
+  //         ? response.data.policyDetail
+  //         : response.data.policyDetail
+  //         ? [response.data.policyDetail]  // wrap in array if it's a single object
+  //         : []
+  //     );
+      
+  //     console.log('API response:', response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+  // };
+
+  
+  // const fetchData = async () => {
+  //   try {
+  //     const emp_id = await AsyncStorage.getItem('username');
+  //     const company_id = await AsyncStorage.getItem('companyname');
+  
+  //     if (!emp_id || !company_id) {
+  //       throw new Error('Missing emp_id or company_id in AsyncStorage');
+  //     }
+  
+  //     const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+  
+  //     // ✅ LOG FULL RESPONSE BEFORE ANYTHING ELSE
+  //     console.log('API response:', response.data);
+  
+  //     // Then extract only after confirming the correct keys
+  //     setClaims(response.data.claims);
+  //     setAllClaims(response.data.claims);
+  
+  //     // setPolicyDetails(
+  //     //   Array.isArray(response.data.policyDetail)
+  //     //     ? response.data.policyDetail
+  //     //     : response.data.policyDetail
+  //     //     ? [response.data.policyDetail]
+  //     //     : []
+  //     // );
+  //     setPolicyDetails(
+  //       Array.isArray(response.data.approval_claim_data.policies)
+  //         ? response.data.approval_claim_data.policies
+  //         : []
+  //     );
+  //     console.log('Approval Claim Data:', response.data.approval_claim_data);
+
+  
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
   const fetchData = async () => {
     try {
       const emp_id = await AsyncStorage.getItem('username');
@@ -454,20 +521,48 @@ const ClaimsScreen = ({ navigation }) => {
       if (!emp_id || !company_id) {
         throw new Error('Missing emp_id or company_id in AsyncStorage');
       }
+  
       const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+  
+      // Set claims data
       setClaims(response.data.claims);
       setAllClaims(response.data.claims);
-      setPolicyDetails(response.data.policy_details_data);
-      console.log('API response:', response.data);
+  
+      // Get policy details
+      const policyDetails = response.data.approval_claim_data.policy_details_data;
+      console.log("Policy Details:", policyDetails);  // Ensure policies are loaded correctly
+  
+      // Match policies to claims by policy_id
+      const updatedClaims = response.data.claims.map(claim => {
+        // Check if the claim's policy_id exists in policyDetails
+        const matchingPolicy = policyDetails.find(policy => {
+          console.log(`Checking claim policy_id: ${claim.policy_id} against policy policy_id: ${policy.policy_id}`);
+          return policy.policy_id == claim.policy_id;  // Use loose comparison to handle data type differences (string vs number)
+        });
+  
+        console.log(`Matching policy for claim ${claim.claim_id}:`, matchingPolicy);
+  
+        return {
+          ...claim,
+          policyDetails: matchingPolicy || null,  // Assign policy details if found, otherwise null
+        };
+      });
+  
+      console.log("Updated Claims with Policies:", updatedClaims);
+  
+      setClaims(updatedClaims);  // Update the claims state with matched policy details
+      setAllClaims(updatedClaims);  // Update all claims as well if needed
+  
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
-
+  
+  
   useEffect(() => {
     fetchData();
   }, []);
-   
+  
   
   
   const getStatusColor = (status) => {
@@ -483,75 +578,139 @@ const ClaimsScreen = ({ navigation }) => {
     }
   };
   
-  const getExpenseNames = (claim, policyDetails) => {
-    if (!Array.isArray(policyDetails)) return { main: 'N/A', sub: 'N/A' };
+
   
-    console.log('Claim:', claim); 
-    console.log('Policy Details:', policyDetails); 
+  // const getExpenseNames = (claim, policyDetails) => {
+  //   if (!Array.isArray(policyDetails)) return { main: 'N/A', sub: 'N/A' };
   
-    const match = policyDetails.find(
-      (p) =>
-        p.policy_detail_id === claim.policy_id &&
-        p.main_expense_head_id === claim.expense_head &&
-        p.sub_expense_head_id === claim.subexpense_head
+  //   const match = policyDetails.find((p) => {
+  //     return (
+  //       String(p.policy_id) === String(claim.policy_id) &&
+  //       String(p.main_expense_head_id) === String(claim.expense_head) &&
+  //       String(p.sub_expense_head_id) === String(claim.subexpense_head)
+  //     );
+  //   });
+  
+  //   return {
+  //     main: match?.expense_head_name || 'N/A',
+  //     sub: match?.sub_expense_name || 'N/A'
+  //   };
+  // };
+  
+  // Place this at the top of the file or at the appropriate location before usage
+const getExpenseNames = (claim, policyDetails) => {
+  if (!Array.isArray(policyDetails) || policyDetails.length === 0) {
+    console.warn("No policy details found for claim:", claim.claim_id);
+    return { main: 'N/A', sub: 'N/A' };
+  }
+
+  const claimPolicyId = String(claim.policy_id);
+  const claimExpenseHead = String(claim.expense_head);
+  const claimSubExpenseHead = String(claim.subexpense_head);
+
+  const match = policyDetails.find(p => {
+    const policyPolicyId = String(p.policy_id);
+    const policyMainExpenseHeadId = String(p.main_expense_head_id);
+    const policySubExpenseHeadId = String(p.sub_expense_head_id);
+
+    return (
+      claimPolicyId === policyPolicyId &&
+      claimExpenseHead === policyMainExpenseHeadId &&
+      claimSubExpenseHead === policySubExpenseHeadId
     );
-  
-    console.log('Matching policy:', match); 
-  
-    return {
-      main: match ? match.expense_head_name || 'N/A' : 'N/A',
-      sub: match ? match.sub_expense_head_name || 'N/A' : 'N/A'
-    };
+  });
+
+  return {
+    main: match?.expense_head_name || 'N/A',
+    sub: match?.sub_expense_name || 'N/A',
   };
+};
+
+
+
+
   
-  const renderClaim = ({ item }) => {
-    const { main, sub } = getExpenseNames(item, policyDetails);
+//   const renderClaim = ({ item }) => {
+//     const { main, sub } = getExpenseNames(item, policyDetails);
  
     
-    return (
-      <TouchableOpacity
-        style={[styles.claimItem, { backgroundColor: theme.cardBg }]}
-        onPress={() => { }}>
-        <View style={styles.claimContent}>
-          <View style={styles.claimHeader}>
-            <Text style={[styles.categoryText, { color: theme.text }]}>
-              Claim #{item.claim_id}
-            </Text>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status_of_approval) }]}>
-              <Text style={styles.statusText}>{item.status_of_approval}</Text>
-            </View>
-          </View>
+//     return (
+      
+//       <TouchableOpacity style={[styles.claimItem, { backgroundColor: theme.cardBg }]}>
+//   <View style={styles.claimHeader}>
+//     <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+//       <Text style={[styles.titleText, { color: theme.text }]}>{main}</Text>
+//     </View>
+//     <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status_of_approval) }]}>
+//       <Text style={styles.statusText}>{item.status_of_approval}</Text>
+//     </View>
+//   </View>
 
-          <Text style={{ color: theme.text }}>
-            Main Category: {main}
-          </Text>
-          <Text style={{ color: theme.text }}>
-            Sub Category: {sub}
-          </Text>
+//   <Text style={[styles.subtitleText, { color: theme.text }]}>{sub}</Text>
 
-          <Text style={[styles.dateText, { color: theme.text }]}>
-            {item.submitted_date}
-          </Text>
+//   <View style={styles.bottomRow}>
+//     <Text style={[styles.dateText, { color: theme.text }]}>{item.submitted_date}</Text>
+//     <Text style={[styles.amountText, { color: theme.text }]}>INR. {item.documents?.[0]?.entered_amount || '0.00'}</Text>
+//   </View>
+// </TouchableOpacity>
 
-          {item.documents?.[0]?.entered_amount && (
-            <Text style={[styles.amountText, { color: theme.text }]}>
-              ₹{item.documents[0].entered_amount}
-            </Text>
-          )}
+//     );
+//   };
+const renderClaim = ({ item }) => {
+  const { main, sub } = getExpenseNames(item, policyDetails);
+
+  console.log('CLAIM:', {
+    policy_id: item.policy_id,
+    expense_head: item.expense_head,
+    subexpense_head: item.subexpense_head,
+  });
+
+  if (Array.isArray(policyDetails)) {
+    policyDetails.forEach((p, i) => {
+      console.log(`POLICY DETAIL [${i}]`, {
+        policy_detail_id: p.policy_detail_id,
+        main_expense_head_id: p.main_expense_head_id,
+        sub_expense_head_id: p.sub_expense_head_id,
+      });
+    });
+  } else {
+    console.warn('policyDetails is not an array:', policyDetails);
+  }
+  
+
+  return (
+    <TouchableOpacity style={[styles.claimItem, { backgroundColor: theme.cardBg }]}>
+      <View style={styles.claimHeader}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+          <Text style={[styles.titleText, { color: theme.text }]}>{main}</Text>
         </View>
-      </TouchableOpacity>
-    );
-  };
+        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status_of_approval) }]}>
+          <Text style={styles.statusText}>{item.status_of_approval}</Text>
+        </View>
+      </View>
+      <Text style={[styles.subtitleText, { color: theme.text }]}>{sub}</Text>
+      <View style={styles.bottomRow}>
+        <Text style={[styles.dateText, { color: theme.text }]}>{item.submitted_date}</Text>
+        <Text style={[styles.amountText, { color: theme.text }]}>INR. {item.documents?.[0]?.entered_amount || '0.00'}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
-  
-  
   const handleNotification = () => {
     navigation.navigate('Notification');
    }
   const handleNewClaim = () => navigation.navigate('NewClaimRequest');
 
   return (
-   
+   <TouchableWithoutFeedback
+   onPress={() => {
+    setDateOpen(false);
+    setStatusOpen(false);
+    setAmountOpen(false);
+    Keyboard.dismiss;
+   }}
+   >
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Claims</Text>
@@ -560,6 +719,7 @@ const ClaimsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.searchBar}>
+        <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
         <TextInput
           style={[styles.searchInput, { color: theme.text }]}
           placeholder="Search Claims"
@@ -635,6 +795,7 @@ const ClaimsScreen = ({ navigation }) => {
         <Text style={styles.addClaimText}>Add New Claim</Text>
       </TouchableOpacity>
     </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -671,14 +832,37 @@ const styles = StyleSheet.create({
     fontSize: 16, 
     fontWeight: 'bold' 
   },
+  titleText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  subtitleText: {
+    fontSize: 14,
+    marginTop: 4,
+    color: '#666',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  
+  // statusBadge: {
+  //   paddingHorizontal: 10,
+  //   paddingVertical: 5,
+  //   borderRadius: 15,
+  // },
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    backgroundColor: '#eee', // fallback
   },
   statusText: { 
     color: '#FFFFFF', 
-    fontSize: 12 
+    fontSize: 12,
+    textTransform:'capitalize',
+    fontWeight: '600',
   },
   dateText: { 
     color: '#666', 
@@ -697,18 +881,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addClaimText: { color: '#FFFFFF', fontWeight: 'bold' },
-  searchBar: { 
-    flexDirection: 'row' 
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    height: 50,
+    backgroundColor: '#fff',
+    width:'90%',
+    marginLeft:20
+  },
+  searchIcon: {
+    marginRight: 10,
   },
   searchInput: {
-     flex: 1, 
-     height: 50, 
-     paddingHorizontal: 10, 
-     borderWidth: 1, 
-     borderColor: '#ccc', 
-     margin: 10, 
-     borderRadius: 10 
-    },
+    flex: 1,
+    fontSize: 16,
+  },
   filterRow: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 

@@ -30,6 +30,19 @@ const NewClaimRequestScreen = ({ navigation }) => {
   const [companyId, setCompanyId] = useState('');
 const [empId, setEmpId] = useState('');
 
+const [editedDate, setEditedDate] = useState(entity?.date);
+useEffect(() => {
+  if (entity?.date) {
+    setEditedDate(entity.date);
+  }
+}, [entity?.date]);
+
+  const [editedTotal, setEditedTotal] = useState(entity?.total);
+  useEffect(() => {
+    if (entity?.total) {
+      setEditedTotal(entity.total);
+    }
+  }, [entity?.total]);
 
   const onDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -258,8 +271,8 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
           invoice_no: entity?.invoiceno || "",
           page1: `data:image/jpeg;base64,${selectedImage.base64}`,
           type: "image",
-          amount: Number(entity?.total),
-          date: entity?.date,
+          amount: Number(editedTotal),
+          date: entity?.editedDate,
         },
       ],
     },
@@ -468,9 +481,35 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
 
 
 </View>
+{entity?.date && (
+  <View style={{ marginBottom: 10 }}>
+    <Text>Date</Text>
+    <TextInput
+      value={ editedDate} // Bind to editableDate state
+      onChangeText={setEditedDate} // Handle date changes
+      editable={true} // Make it editable
+      style={{ borderWidth: 1, padding: 8 }}
+    />
+    <Text style={styles.note}>*Change the date if it is incorrect.</Text>
+  </View>
+)}
+
+{entity?.total && (
+  <View style={{ marginBottom: 10 }}>
+    <Text>Total</Text>
+    <TextInput
+      value={editedTotal } // Bind to editableTotal state
+      onChangeText={setEditedTotal} // Handle amount changes
+      keyboardType="numeric" // Ensures numeric input
+      editable={true} // Make it editable
+      style={{ borderWidth: 1, padding: 8 }}
+    />
+    <Text style={styles.note}>*Change the total if it is incorrect.</Text>
+  </View>
+)}
 
 
-  {entity?.date && (
+  {/* {entity?.date && (
     <View style={{ marginBottom: 10 }}>
        <Text>Date</Text>
       <TextInput
@@ -478,15 +517,7 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
         editable={true}
         style={{ borderWidth: 1, padding: 8 }}
       /> 
-      {/* <TouchableOpacity
-   style={[styles.datePickerButton, { backgroundColor: theme.background, borderColor: theme.borderColor }]}
-   onPress={() => setShowDatePicker(true)}
->
-   <Text style={[styles.dateText, { color: theme.text }]}>{formatDate(date)}</Text>
-   <Icon name="calendar-outline" size={20} color={theme.text} />
-</TouchableOpacity> */}
-     
-      <Text style={styles.note}>Change the date if it is incorrect.</Text>
+      <Text style={styles.note}>*Change the date if it is incorrect.</Text>
     </View>
   )}
 
@@ -498,8 +529,9 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
         editable={true}
         style={{ borderWidth: 1, padding: 8 }}
       />
+      <Text style={styles.note}>*Change the total if it is incorrect.</Text>
     </View>
-  )}
+  )} */}
 <View>
   
   {entity?.bill_no && (
@@ -736,6 +768,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   uploadText: { marginLeft: 8, color: '#333' },
+  note:{
+      color:'red',
+      fontSize:12,
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
