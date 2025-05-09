@@ -445,74 +445,16 @@ const ClaimsScreen = ({ navigation }) => {
     );
     setClaims(filtered);
   };
-
-  // const fetchData = async () => {
-  //   try {
-  //     const emp_id = await AsyncStorage.getItem('username');
-  //     const company_id = await AsyncStorage.getItem('companyname');
   
-  //     if (!emp_id || !company_id) {
-  //       throw new Error('Missing emp_id or company_id in AsyncStorage');
-  //     }
-  //     const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
-  //     setClaims(response.data.claims);
-  //     setAllClaims(response.data.claims);
-  //     //setPolicyDetails(response.data.policy_details_data);
-  //     setPolicyDetails(
-  //       Array.isArray(response.data.policyDetail)
-  //         ? response.data.policyDetail
-  //         : response.data.policyDetail
-  //         ? [response.data.policyDetail]  // wrap in array if it's a single object
-  //         : []
-  //     );
-      
-  //     console.log('API response:', response.data);
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
-  // };
-
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchData(); // This is your real fetch function
+    });
   
-  // const fetchData = async () => {
-  //   try {
-  //     const emp_id = await AsyncStorage.getItem('username');
-  //     const company_id = await AsyncStorage.getItem('companyname');
+    return unsubscribe;
+  }, [navigation]);
   
-  //     if (!emp_id || !company_id) {
-  //       throw new Error('Missing emp_id or company_id in AsyncStorage');
-  //     }
   
-  //     const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
-  
-  //     // ✅ LOG FULL RESPONSE BEFORE ANYTHING ELSE
-  //     console.log('API response:', response.data);
-  
-  //     // Then extract only after confirming the correct keys
-  //     setClaims(response.data.claims);
-  //     setAllClaims(response.data.claims);
-  
-  //     // setPolicyDetails(
-  //     //   Array.isArray(response.data.policyDetail)
-  //     //     ? response.data.policyDetail
-  //     //     : response.data.policyDetail
-  //     //     ? [response.data.policyDetail]
-  //     //     : []
-  //     // );
-  //     setPolicyDetails(
-  //       Array.isArray(response.data.approval_claim_data.policies)
-  //         ? response.data.approval_claim_data.policies
-  //         : []
-  //     );
-  //     console.log('Approval Claim Data:', response.data.approval_claim_data);
-
-  
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
   const fetchData = async () => {
     try {
       const emp_id = await AsyncStorage.getItem('username');
@@ -580,24 +522,7 @@ const ClaimsScreen = ({ navigation }) => {
   
 
   
-  // const getExpenseNames = (claim, policyDetails) => {
-  //   if (!Array.isArray(policyDetails)) return { main: 'N/A', sub: 'N/A' };
   
-  //   const match = policyDetails.find((p) => {
-  //     return (
-  //       String(p.policy_id) === String(claim.policy_id) &&
-  //       String(p.main_expense_head_id) === String(claim.expense_head) &&
-  //       String(p.sub_expense_head_id) === String(claim.subexpense_head)
-  //     );
-  //   });
-  
-  //   return {
-  //     main: match?.expense_head_name || 'N/A',
-  //     sub: match?.sub_expense_name || 'N/A'
-  //   };
-  // };
-  
-  // Place this at the top of the file or at the appropriate location before usage
 const getExpenseNames = (claim, policyDetails) => {
   if (!Array.isArray(policyDetails) || policyDetails.length === 0) {
     console.warn("No policy details found for claim:", claim.claim_id);
@@ -626,36 +551,6 @@ const getExpenseNames = (claim, policyDetails) => {
   };
 };
 
-
-
-
-  
-//   const renderClaim = ({ item }) => {
-//     const { main, sub } = getExpenseNames(item, policyDetails);
- 
-    
-//     return (
-      
-//       <TouchableOpacity style={[styles.claimItem, { backgroundColor: theme.cardBg }]}>
-//   <View style={styles.claimHeader}>
-//     <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-//       <Text style={[styles.titleText, { color: theme.text }]}>{main}</Text>
-//     </View>
-//     <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status_of_approval) }]}>
-//       <Text style={styles.statusText}>{item.status_of_approval}</Text>
-//     </View>
-//   </View>
-
-//   <Text style={[styles.subtitleText, { color: theme.text }]}>{sub}</Text>
-
-//   <View style={styles.bottomRow}>
-//     <Text style={[styles.dateText, { color: theme.text }]}>{item.submitted_date}</Text>
-//     <Text style={[styles.amountText, { color: theme.text }]}>INR. {item.documents?.[0]?.entered_amount || '0.00'}</Text>
-//   </View>
-// </TouchableOpacity>
-
-//     );
-//   };
 const renderClaim = ({ item }) => {
   const { main, sub } = getExpenseNames(item, policyDetails);
 
@@ -718,10 +613,10 @@ const renderClaim = ({ item }) => {
           <Icon name="notifications-outline" size={24} color={theme.text} />
         </TouchableOpacity>
       </View>
-      <View style={styles.searchBar}>
-        <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
+      <View style={[styles.searchBar,{ color: theme.text },{ backgroundColor: theme.background }]}>
+        <Icon name="search" size={20} color="#888" style={[styles.searchIcon,{ color: theme.text },{ backgroundColor: theme.background }]} />
         <TextInput
-          style={[styles.searchInput, { color: theme.text }]}
+          style={[styles.searchInput, { color: theme.text },{ backgroundColor: theme.background }]}
           placeholder="Search Claims"
           placeholderTextColor="#888"
           value={query}
@@ -729,8 +624,8 @@ const renderClaim = ({ item }) => {
         />
       </View>
 
-      <View style={styles.filterRow}>
-        <View style={styles.dropdownWrapper}>
+      <View style={[styles.filterRow, { color: theme.text },{ backgroundColor: theme.background }]}>
+        <View style={[styles.dropdownWrapper, { color: theme.text },{ backgroundColor: theme.background }]}>
           <DropDownPicker
             open={dateOpen}
             value={null}
@@ -739,9 +634,9 @@ const renderClaim = ({ item }) => {
             setValue={setDateValue}
             setItems={() => {}}
             placeholder="Date"
-            style={styles.dropdown}
-            textStyle={styles.dropdownText}
-            dropDownContainerStyle={styles.dropdownContainer}
+            style={[styles.dropdown,{ color: theme.text },{ backgroundColor: theme.background }]}
+            textStyle={[styles.dropdownText,{ color: theme.text }]}
+            dropDownContainerStyle={[styles.dropdownContainer,{ color: theme.text },{ backgroundColor: theme.background }]}
             zIndex={3000}
           />
         </View>
@@ -755,9 +650,9 @@ const renderClaim = ({ item }) => {
             setValue={setStatusValue}
             setItems={() => {}}
             placeholder="Status"
-            style={styles.dropdown}
-            textStyle={styles.dropdownText}
-            dropDownContainerStyle={styles.dropdownContainer}
+            style={[styles.dropdown,{ color: theme.text },{ backgroundColor: theme.background }]}
+            textStyle={[styles.dropdownText,{ color: theme.text }]}
+            dropDownContainerStyle={[styles.dropdownContainer,{ color: theme.text },{ backgroundColor: theme.background }]}
             zIndex={2000}
           />
         </View>
@@ -771,9 +666,9 @@ const renderClaim = ({ item }) => {
             setValue={setAmountValue}
             setItems={() => {}}
             placeholder="Amount"
-            style={styles.dropdown}
-            textStyle={styles.dropdownText}
-            dropDownContainerStyle={styles.dropdownContainer}
+            style={[styles.dropdown,{ color: theme.text },{ backgroundColor: theme.background }]}
+            textStyle={[styles.dropdownText,{ color: theme.text }]}
+            dropDownContainerStyle={[styles.dropdownContainer,{ color: theme.text },{ backgroundColor: theme.background }]}
             zIndex={1000}
           />
         </View>

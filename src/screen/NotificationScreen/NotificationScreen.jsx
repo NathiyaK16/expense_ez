@@ -820,21 +820,21 @@ const NotificationScreen = ({ navigation }) => {
     fetchNotifications();
   }, []);
 
+ 
   const fetchNotifications = async () => {
     try {
       const emp_id = await AsyncStorage.getItem('username');
       const company_id = await AsyncStorage.getItem('companyname');
-
-      if (!emp_id || !company_id) {
-        throw new Error('Missing emp_id or company_id in AsyncStorage');
-      }
-
+      const readStatusesStr = await AsyncStorage.getItem('readStatuses');
+      const readStatuses = readStatusesStr ? JSON.parse(readStatusesStr) : [];
+  
       const response = await axios.get(
         `${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`
       );
-
+  
+      // Existing claim status notifications
       const rawNotifications = response.data?.status_claims_notifications || [];
-
+  
       const formatted = rawNotifications.map((item) => {
         const approver = item.approver_name || item.approver_id || 'Someone';
         const status = item.status_of_approval;
@@ -844,37 +844,47 @@ const NotificationScreen = ({ navigation }) => {
             : status === 'Rejected'
             ? 'rejected'
             : 'updated';
-
+  
         return {
-          ...item,
+          id: item.id,
           message: `${approver} ${action} your claim`,
-          status_read: 'unread', // Initialize the status as 'unread'
+          status_read: readStatuses.includes(item.id) ? 'read' : 'unread',
+          created_at: item.created_at,
+          type: 'status',
         };
       });
-
-      setAllNotifications(formatted);
-
-      // Retrieve stored read statuses and update them
-      const storedReadStatuses = await AsyncStorage.getItem('readStatuses');
-      if (storedReadStatuses) {
-        const readStatuses = JSON.parse(storedReadStatuses);
-        const updatedNotifications = formatted.map((notification) => {
-          if (readStatuses.includes(notification.id)) {
-            return { ...notification, status_read: 'read' };
-          }
-          return notification;
-        });
-        setNotifications(updatedNotifications);
-      } else {
-        setNotifications(formatted);
-      }
+  
+      // New: Claim request (approval) notifications
+      const approvalClaimData = response.data?.approval_claim_data?.approval_hiery_data || [];
+  
+      const approvalNotifications = approvalClaimData.map((item) => ({
+        id: `approval_${item.claim_id}`, // Make sure it's unique
+        message: `Claim requested by ${item.emp_name}`,
+        note: 'You have a claim to review',
+        status_read: readStatuses.includes(`approval_${item.claim_id}`) ? 'read' : 'unread',
+        created_at: item.created_at,
+        type: 'approval',
+      }));
+  
+      // Combine both types
+      const allFormatted = [...formatted, ...approvalNotifications];
+  
+      // Sort by created date (optional but useful)
+      allFormatted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  
+      setAllNotifications(allFormatted);
+      setNotifications(allFormatted);
+  
+      // Store updated unread count
+      const unreadCount = allFormatted.filter((n) => n.status_read === 'unread').length;
+      await AsyncStorage.setItem('unreadCount', unreadCount.toString());
     } catch (error) {
       console.log('Error fetching notifications:', error);
     } finally {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     let filtered = [...allNotifications];
 
@@ -902,23 +912,43 @@ const NotificationScreen = ({ navigation }) => {
     setNotifications(filtered);
   }, [dateValue, statusValue, searchQuery, allNotifications]);
 
+  // const markAsRead = async (id) => {
+  //   // Update the notification status in state
+  //   const updatedNotifications = notifications.map((notif) =>
+  //     notif.id === id ? { ...notif, status_read: 'read' } : notif
+  //   );
+  //   setNotifications(updatedNotifications);
+
+  //   // Save the read notification ID to AsyncStorage
+  //   const readStatuses = await AsyncStorage.getItem('readStatuses');
+  //   let updatedReadStatuses = readStatuses ? JSON.parse(readStatuses) : [];
+    
+  //   // Only add to readStatuses if it's not already added
+  //   if (!updatedReadStatuses.includes(id)) {
+  //     updatedReadStatuses.push(id);
+  //     await AsyncStorage.setItem('readStatuses', JSON.stringify(updatedReadStatuses));
+  //   }
+  // };
+
   const markAsRead = async (id) => {
-    // Update the notification status in state
     const updatedNotifications = notifications.map((notif) =>
       notif.id === id ? { ...notif, status_read: 'read' } : notif
     );
     setNotifications(updatedNotifications);
+    setAllNotifications(updatedNotifications);
+  
+    const readStatusesStr = await AsyncStorage.getItem('readStatuses');
+    const readStatuses = readStatusesStr ? JSON.parse(readStatusesStr) : [];
+  
+    if (!readStatuses.includes(id)) {
+      readStatuses.push(id);
+      await AsyncStorage.setItem('readStatuses', JSON.stringify(readStatuses));
+      const newUnreadCount = updatedNotifications.filter(n => n.status_read === 'unread').length;
+await AsyncStorage.setItem('unreadCount', newUnreadCount.toString());
 
-    // Save the read notification ID to AsyncStorage
-    const readStatuses = await AsyncStorage.getItem('readStatuses');
-    let updatedReadStatuses = readStatuses ? JSON.parse(readStatuses) : [];
-    
-    // Only add to readStatuses if it's not already added
-    if (!updatedReadStatuses.includes(id)) {
-      updatedReadStatuses.push(id);
-      await AsyncStorage.setItem('readStatuses', JSON.stringify(updatedReadStatuses));
     }
   };
+  
 
   const renderItem = ({ item }) => {
     const initials = item.approver_name
@@ -945,14 +975,20 @@ const NotificationScreen = ({ navigation }) => {
               <View style={styles.initialsCircle}>
                 <Text style={styles.initialsText}>{initials}</Text>
               </View>
+              
             )}
+            
+            {item.status_read === 'unread' && (
+    <View style={styles.unreadDot} />
+  )}
+
           </View>
 
           <View style={styles.messageContainer}>
             <Text style={styles.mainMessage}>
-              <Text style={styles.boldText}>
+              {/* <Text style={styles.boldText}>
                 {item.approver_name || initials}{' '}
-              </Text>
+              </Text> */}
               {item.message.replace(`${item.approver_name || initials} `, '')}
             </Text>
             <Text style={styles.date}>
@@ -968,9 +1004,11 @@ const NotificationScreen = ({ navigation }) => {
                 : 'No Date'}
             </Text>
           </View>
+          {/* {item.status_read === 'unread' && (
+      <View style={styles.unreadDot} />
+    )} */}
         </View>
-        <View style={styles.divider} />
-      </TouchableOpacity>
+        </TouchableOpacity>
     );
   };
 
@@ -1119,24 +1157,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+ 
   notificationCard: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: '#fff', // Default background for read notifications
-    borderWidth: 1,
-    borderColor: '#ccc',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0', // light separator line
+    backgroundColor: '#fff',
   },
+  
   unreadNotification: {
     backgroundColor: '#f8f8f8', // Background for unread notifications
-    borderColor: '#007bff',
+    
   },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  avatarContainer: {
-    marginRight: 12,
-  },
+  // avatarContainer: {
+  //   marginRight: 12,
+  // },
   initialsCircle: {
     width: 44,
     height: 44,
@@ -1157,10 +1198,12 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     flex: 1,
+
   },
   mainMessage: {
     fontSize: 16,
     color: '#333',
+    marginLeft:20,
   },
   boldText: {
     fontWeight: 'bold',
@@ -1169,12 +1212,29 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 13,
     color: '#888',
+    marginLeft:20,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginTop: 12,
+  
+  avatarContainer: {
+    position: 'relative',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  
+  unreadDot: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#4CAF50', // match your green
+    borderWidth: 1,
+    borderColor: 'white', // optional: adds a clean border
+  },
+  
 });
 
 export default NotificationScreen;

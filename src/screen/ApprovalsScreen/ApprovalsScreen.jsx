@@ -142,10 +142,10 @@ export default function ApprovalScreen() {
           approver_id: emp_id,
           status_of_approval: actionType === 'approve' ? 'Approved' : 'Rejected',
          
-          // approved_at: actionType === 'approve' ? now : null,
-          // rejected_at: actionType === 'reject' ? now : null,
-          approved_at: actionType === 'approve' ? now : '',
-          rejected_at: actionType === 'reject' ? now : '',
+          approved_at: actionType === 'approve' ? now : null,
+          rejected_at: actionType === 'reject' ? now : null,
+          // approved_at: actionType === 'approve' ? now : '',
+          // rejected_at: actionType === 'reject' ? now : '',
           rejected_reason: actionType === 'reject' ? 'Rejected by approver' : '',
           ...(item.advance_id && { advance_id: item.advance_id }),
           ...(item.advance_amount && { advance_amount: item.advance_amount }),
@@ -239,7 +239,7 @@ export default function ApprovalScreen() {
           <Text style={[styles.headerTitle, { color: theme.text }]}>Approvals</Text>
         </View>
 
-<View style={styles.searchBar}>
+<View style={[styles.searchBar,{ color: theme.text },{ backgroundColor: theme.background }]}>
   <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
   <TextInput
     style={[styles.searchInput, { color: theme.text }]}
@@ -250,7 +250,7 @@ export default function ApprovalScreen() {
   />
 </View>
 
-        <View style={styles.filterRow}>
+        <View style={[styles.filterRow,{ color: theme.text },{ backgroundColor: theme.background }]}>
           <View style={styles.dropdownWrapper}>
             <DropDownPicker
               open={dateOpen}
@@ -260,9 +260,9 @@ export default function ApprovalScreen() {
               setValue={setDateValue}
               setItems={() => {}}
               placeholder="Date"
-              style={styles.dropdown}
-              textStyle={styles.dropdownText}
-              dropDownContainerStyle={styles.dropdownContainer}
+              style={[styles.dropdown,{ color: theme.text },{ backgroundColor: theme.background }]}
+              textStyle={[styles.dropdownText,{ color: theme.text }]}
+              dropDownContainerStyle={[styles.dropdownContainer,{ color: theme.text },{ backgroundColor: theme.background }]}
               zIndex={3000}
             />
           </View>
@@ -276,9 +276,9 @@ export default function ApprovalScreen() {
               setValue={setAmountValue}
               setItems={() => {}}
               placeholder="Amount"
-              style={styles.dropdown}
-              textStyle={styles.dropdownText}
-              dropDownContainerStyle={styles.dropdownContainer}
+              style={[styles.dropdown,{ color: theme.text },{ backgroundColor: theme.background }]}
+            textStyle={[styles.dropdownText,{ color: theme.text }]}
+            dropDownContainerStyle={[styles.dropdownContainer,{ color: theme.text },{ backgroundColor: theme.background }]}
               zIndex={2000}
             />
           </View>
@@ -301,7 +301,7 @@ export default function ApprovalScreen() {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={styles.rejectButton}
+            style={[styles.rejectButton,{ color: theme.text },]}
             onPress={() => handleAction('reject')}
           >
             {actionLoading ? (
@@ -311,7 +311,7 @@ export default function ApprovalScreen() {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.approveButton}
+            style={[styles.approveButton,{ color: theme.text },{ backgroundColor: theme.buttonBg }]}
             onPress={() => handleAction('approve')}
           >
             {actionLoading ? (
@@ -381,18 +381,23 @@ const styles = StyleSheet.create({
   },
   
   approvalItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    backgroundColor: '#fff',
+    //flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // alignItems: 'center',
+    // paddingVertical: 12,
+    // paddingHorizontal: 16,
+    // marginHorizontal: 16,
+    // marginVertical: 6,
+    // backgroundColor: '#fff',
+    // borderRadius: 10,
+    // borderWidth: 1,
+    // borderColor: '#222',
+    // elevation: 1,
     borderRadius: 10,
+    padding: 15,
+    margin: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    elevation: 1,
+    borderColor: '#ccc',
   },
   approvalContent: {
     flexDirection: 'row',
