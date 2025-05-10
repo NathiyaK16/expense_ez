@@ -1080,7 +1080,7 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
 
 
 
- const payload = 
+//  const payload = 
 
 //  {
 //   employee_claim_data: [
@@ -1117,41 +1117,114 @@ const subExpenseHeadId = selectedPolicy.sub_expense_head;
 //     },
 //   ],
 // };
-{
-  "employee_claim_data": [
-      {
-"company_id":"durr",
-          "policy_id": 474,
-          "expense_head": 116,
-          "subexpense_head": 100,
-          "claim_status":"normal",
-          "claim_type":"regular",
-          "emp_id": "durr79",
-          "year":"2025",
-          "advance_id":88,
-         "descriptions":"hello",
-          "document": [
-              {
-                  "ocr_amount": "500",
-                  "ocr_date": "2021-01-22",
-                  "booking_id":"abc123",
-                  "ride_id":"abc123",
-                  "from_address":"abc123",
-                  "to_address":"abc123",
-                  "doc_name":"abc123",
-                  "distance":"abc123",
-                  "gst_no":"abc123",
-                  "times":"abc123",
-                  "invoice_no":"abc123",
-                  "page1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgA....",
-"type": "image",
-                  "amount": 1000.00,
-                  "date": "2021-01-22"
-              }
-          ]
-      }
+// const payload = {
+//   "employee_claim_data": [
+//     {
+//       "company_id": companyId.toString(),
+//       "policy_id": policyId,
+//       "expense_head": mainExpenseHeadId,
+//       "subexpense_head": subExpenseHeadId,
+//       "claim_status": "normal",
+//       "claim_type": "regular",
+//       "emp_id": empId.toString(),
+//       "year": "2025",
+//       "advance_id": 71,
+//       "descriptions": "hello",
+//       "document": [
+//         {
+//           "ocr_amount": Number(entity?.total ),
+//           "ocr_date": entity?.date || null,
+//           "booking_id": entity?.bill_no || null,
+//           "ride_id": entity?.bill_no || null,
+//           "from_address": entity?.from_address || null,
+//           "to_address": entity?.to_address || null,
+//           "doc_name": entity?.org || null,
+//           "distance": entity?.distance || null,
+//           "gst_no": entity?.gstno || null,
+//           "times": entity?.time || null,
+//           "invoice_no": entity?.invoiceno || null,
+//           "page1": `data:image/jpeg;base64,${selectedImage?.base64 }`,
+//           "type": "image",
+//           "amount": Number(entity?.total ),
+//           "date": entity?.date || null
+//         }
+//       ]
+//     }
+//   ]
+// };
+const payload = {
+  employee_claim_data: [
+    {
+      company_id: companyId.toString(),
+      policy_id: policyId,
+      expense_head: mainExpenseHeadId,
+      subexpense_head: subExpenseHeadId,
+      claim_status: "normal",
+      claim_type: "regular",
+      emp_id: empId.toString(),
+      year: "2025",
+      advance_id: 71,
+      claim_amount: Number(entity?.total || 0),
+      advance_amount: 0,
+      descriptions: "hello",
+      document: [
+        {
+          ocr_amount: Number(entity?.total || 0),
+          ocr_date: entity?.date || "2025-01-01",
+          booking_id: entity?.bill_no || "",
+          ride_id: entity?.bill_no || "",
+          from_address: entity?.from_address || "",
+          to_address: entity?.to_address || "",
+          doc_name: entity?.org || "",
+          distance: entity?.distance || "",
+          gst_no: entity?.gstno || "",
+          times: entity?.time || "",
+          invoice_no: entity?.invoiceno || "",
+          page1: `data:image/jpeg;base64,${selectedImage?.base64 || ""}`,
+          type: "image",
+          amount: Number(entity?.total || 0),
+          date: entity?.date || "2025-01-01"
+        }
+      ]
+    }
   ]
-}
+};
+
+// {
+//     "employee_claim_data": [
+//         {
+//             "company_id":"durr",
+//             "policy_id": 474,
+//             "expense_head": 116,
+//             "subexpense_head": 100,
+//             "claim_status":"normal",
+//             "claim_type":"regular",
+//             "emp_id": "emptest567",
+//             "year":"2025",
+//             "advance_id":88,
+//             "claim_amount":300,
+//             "advance_amount":200,
+//            "descriptions":"hello",
+//             "document": [
+//                 {
+//                     "ocr_amount": "500",
+//                     "ocr_date": "2021-01-22",
+//                     "booking_id":"abc123",
+//                     "ride_id":"abc123",
+//                     "from_address":"abc123",
+//                     "to_address":"abc123",
+//                     "doc_name":"abc123",
+//                     "distance":"abc123",
+//                     "gst_no":"abc123",
+//                     "times":"abc123",
+//                     "invoice_no":"abc123",
+//                     "page1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA3wAAATvC...","type": "image",
+//                     "amount": 1000.00,
+//                     "date": "2021-01-22"
+//                 }]
+//       }
+//   ]
+// }
   console.log("Payload", payload);
     try {
 

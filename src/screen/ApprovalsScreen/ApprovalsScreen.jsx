@@ -195,22 +195,28 @@ export default function ApprovalScreen() {
               onPress={() => { }}>
       <View style={styles.approvalContent}>
 
-        <Checkbox
+        {/* <Checkbox
           status={selectedItems.includes(String(item.claim_id)) ? 'checked' : 'unchecked'}
           onPress={() => toggleSelect(String(item.claim_id))}
-        />
+        /> */}
+        <Checkbox
+  status={selectedItems.includes(String(item.claim_id)) ? 'checked' : 'unchecked'}
+  onPress={() => toggleSelect(String(item.claim_id))}
+  color={selectedItems.includes(String(item.claim_id)) ? '#7E8356' : undefined} // e.g., blue when selected
+/>
+
         <View style={{ flex: 1 }}>
           
-          <Text style={styles.empName}>{item.emp_name}</Text>
-<Text style={styles.claimCode}>Claim ID:{item.claim_id}</Text>
-<Text style={styles.expenseText}>
+          <Text style={[styles.empName,{ color: theme.text }]}>{item.emp_name}</Text>
+<Text style={[styles.claimCode,{ color: theme.text }]}>Claim ID:{item.claim_id}</Text>
+<Text style={[styles.expenseText,{ color: theme.text }]}>
   <Text style={{ fontWeight: 'bold' }}>{item.expense_head_name}</Text> - {item.sub_expense_head_name}
 </Text>
 
         </View>
-        <View style={styles.rightContent}>
-          <Text style={styles.amountText}>INR. {item.documents?.[0]?.entered_amount?.toFixed(2) ?? '0.00'}</Text>
-          <Text style={styles.dateText}>
+        <View style={[styles.rightContent]}>
+          <Text style={[styles.amountText,{ color: theme.text }]}>INR. {item.documents?.[0]?.entered_amount?.toFixed(2) ?? '0.00'}</Text>
+          <Text style={[styles.dateText,{ color: theme.text }]}>
             {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'No Date'}
           </Text>
         </View>
@@ -301,13 +307,13 @@ export default function ApprovalScreen() {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.rejectButton,{ color: theme.text },]}
+            style={[styles.rejectButton,{ backgroundColor: theme.background },{ borderColor: theme.borderColor}]}
             onPress={() => handleAction('reject')}
           >
             {actionLoading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text style={styles.rejectButtonText}>Reject</Text>
+              <Text style={[styles.rejectButtonText,{ color: theme.text }]}>Reject</Text>
             )}
           </TouchableOpacity>
           <TouchableOpacity
@@ -368,7 +374,6 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 10,
     height: 50,
-    backgroundColor: '#fff',
     width:'90%',
     marginLeft:20
   },
@@ -422,29 +427,27 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     borderColor: '#888',
-    backgroundColor: 'white',
     minHeight: 40
   },
   dropdownText: {
-    color: 'black',
     fontSize: 14
   },
   dropdownContainer: {
-    backgroundColor: 'white',
+    
     borderColor: '#888'
   },
   empName: {
     fontWeight: 'bold',
     fontSize: 18,
-    color: '#333',
+    
   },
   claimCode: {
-    color:'#222',
+    
     fontSize: 14,
     padding:5
   },
   expenseText: {
-    color: '#444',
+    
     fontSize: 16,
    
   },
@@ -460,7 +463,6 @@ const styles = StyleSheet.create({
   // },
   
   dateText: { 
-    color: '#222', 
     marginTop: 5 
   },
   amountText: { 
@@ -474,23 +476,20 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   },
   rejectButton: {
-    backgroundColor: 'white',
+   
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 8,
   },
   approveButton: {
-    backgroundColor: '#7E8356',
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 8,
   },
   rejectButtonText: {
-    color: 'black',
     fontSize: 16,
   },
   approveButtonText: {
-    color: '#fff',
     fontSize: 16,
   },
 });

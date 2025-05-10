@@ -792,11 +792,12 @@ import axios from 'axios';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { BASEPATH } from '../config';
 import DropDownPicker from 'react-native-dropdown-picker';
-
+import { useTheme } from '../../theme/useTheme';
 const NotificationScreen = ({ navigation }) => {
   const [notifications, setNotifications] = useState([]);
   const [allNotifications, setAllNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
 
   const [dateOpen, setDateOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
@@ -963,29 +964,36 @@ await AsyncStorage.setItem('unreadCount', newUnreadCount.toString());
       <TouchableOpacity
         style={[
           styles.notificationCard,
-          item.status_read === 'unread' && styles.unreadNotification,
+          item.status_read === 'unread' && styles.unreadNotification,{backgroundColor:theme.background}
         ]}
         onPress={() => markAsRead(item.id)}
       >
         <View style={styles.row}>
-          <View style={styles.avatarContainer}>
-            {item.approver_image_url ? (
-              <Image source={{ uri: item.approver_image_url }} style={styles.avatar} />
+          <View style={[styles.avatarContainer,{color:theme.text}]}>
+            {/* {item.approver_image_url ? (
+              <Image source={{ uri: item.approver_image_url }} style={[styles.avatar,{color:theme.text}]} />
             ) : (
-              <View style={styles.initialsCircle}>
-                <Text style={styles.initialsText}>{initials}</Text>
+              <View style={[styles.initialsCircle, {backgroundColor:theme.background}]}>
+                <Text style={[styles.initialsText,{color:theme.text}]}>{initials}</Text>
               </View>
               
-            )}
-            
+            )} */}
+            {item.approver_image_url ? (
+  <Image source={{ uri: item.approver_image_url }} style={[styles.avatar]} />
+) : (
+  <View style={[styles.avatar, styles.defaultAvatar]}>
+    <Icon name="person" size={24} color="#888" />
+  </View>
+)}
+
             {item.status_read === 'unread' && (
     <View style={styles.unreadDot} />
   )}
 
           </View>
 
-          <View style={styles.messageContainer}>
-            <Text style={styles.mainMessage}>
+          <View style={[styles.messageContainer,{backgroundColor:theme.background},{color:theme.text}]}>
+            <Text style={[styles.mainMessage,{color:theme.text}]}>
               {/* <Text style={styles.boldText}>
                 {item.approver_name || initials}{' '}
               </Text> */}
@@ -1028,16 +1036,16 @@ await AsyncStorage.setItem('unreadCount', newUnreadCount.toString());
         Keyboard.dismiss();
       }}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container,{backgroundColor:theme.background}]}>
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Notifications</Text>
+          <Text style={[styles.headerTitle, {color:theme.text}]}>Notifications</Text>
         </View>
 
-        <View style={styles.searchBar}>
+        <View style={[styles.searchBar,{backgroundColor:theme.background}, {color:theme.text}]}>
           <Icon name="search-outline" size={20} color="#888" style={{ marginRight: 8 }} />
           <TextInput
             placeholder="Search Notifications"
-            style={styles.searchInput}
+            style={[styles.searchInput,{color:theme.text}]}
             placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -1054,9 +1062,9 @@ await AsyncStorage.setItem('unreadCount', newUnreadCount.toString());
               setValue={setDateValue}
               setItems={() => {}}
               placeholder="Date"
-              style={styles.dropdown}
-              textStyle={styles.dropdownText}
-              dropDownContainerStyle={styles.dropdownContainer}
+              style={[styles.dropdown,{ color: theme.text },{ backgroundColor: theme.background }]}
+              textStyle={[styles.dropdownText,{ color: theme.text }]}
+              dropDownContainerStyle={[styles.dropdownContainer,{ color: theme.text },{ backgroundColor: theme.background }]}
             />
           </View>
 
@@ -1069,9 +1077,9 @@ await AsyncStorage.setItem('unreadCount', newUnreadCount.toString());
               setValue={setStatusValue}
               setItems={() => {}}
               placeholder="Status"
-              style={styles.dropdown}
-              textStyle={styles.dropdownText}
-              dropDownContainerStyle={styles.dropdownContainer}
+              style={[styles.dropdown,{ color: theme.text },{ backgroundColor: theme.background }]}
+              textStyle={[styles.dropdownText,{ color: theme.text }]}
+              dropDownContainerStyle={[styles.dropdownContainer,{ color: theme.text },{ backgroundColor: theme.background }]}
             />
           </View>
         </View>
@@ -1162,8 +1170,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0', // light separator line
+    //borderBottomWidth: 1,
+    //borderBottomColor: '#e0e0e0', // light separator line
     backgroundColor: '#fff',
   },
   
@@ -1178,24 +1186,29 @@ const styles = StyleSheet.create({
   // avatarContainer: {
   //   marginRight: 12,
   // },
-  initialsCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#d8d8d8',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  initialsText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#555',
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
+  defaultAvatar: {
+  backgroundColor: '#e0e0e0',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+  // initialsCircle: {
+  //   width: 44,
+  //   height: 44,
+  //   borderRadius: 22,
+  //   backgroundColor: '#d8d8d8',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // initialsText: {
+  //   fontSize: 16,
+  //   fontWeight: 'bold',
+  // },
+  // avatar: {
+  //   width: 44,
+  //   height: 44,
+  //   borderRadius: 22,
+  // },
   messageContainer: {
     flex: 1,
 

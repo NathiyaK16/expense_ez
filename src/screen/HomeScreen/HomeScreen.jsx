@@ -64,7 +64,7 @@ const HomeScreen = ({navigation}) =>{
           alignItems: 'center',
         }}
       >
-        <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>
+        <Text style={{ color: theme.text, fontSize: 10, fontWeight: 'bold' }}>
           {unreadCount}
         </Text>
       </View>

@@ -438,14 +438,91 @@ const ClaimsScreen = ({ navigation }) => {
     setClaims(filtered);
   }, [dateValue, statusValue, amountValue, allClaims]);
 
-  const handleSearch = text => {
-    setQuery(text);
-    const filtered = allClaims.filter(item =>
-      item.descriptions?.toLowerCase().includes(text.toLowerCase())
+  // const handleSearch = text => {
+  //   setQuery(text);
+  //   const filtered = allClaims.filter(item =>
+  //     item.descriptions?.toLowerCase().includes(text.toLowerCase())
+  //   );
+  //   setClaims(filtered);
+  // };
+//   const handleSearch = text => {
+//     setQuery(text);
+//     const filtered = allClaims.filter(item =>
+//       item.descriptions && item.descriptions.trim().toLowerCase().includes(text.toLowerCase().trim())
+//     );
+//     setClaims(filtered);
+// };
+// const handleSearch = text => {
+//     setQuery(text);
+//     console.log("Search text:", text);  // Log search term
+//     const filtered = allClaims.filter(item => {
+//       const description = item.descriptions?.toLowerCase().trim();
+//       console.log("Item description:", description);  // Log descriptions
+//       return description?.includes(text.toLowerCase().trim());
+      
+//     });
+//     setClaims(filtered);
+// };
+// const handleSearch = text => {
+//     setQuery(text);
+    
+//     // Log the search text to check what the user is entering
+//     console.log("Search text:", text);  
+
+//     const filtered = allClaims.filter(item => {
+//         // Safely access the descriptions and log it for debugging
+//         const description = item.descriptions?.toLowerCase().trim();
+        
+//         // Log each item's description
+//         console.log("Item description:", description);  
+
+//         // Check if the description includes the search term
+//         return description?.includes(text.toLowerCase().trim());
+//     });
+
+//     // Log the filtered results to check what is being returned
+//     console.log("Filtered claims:", filtered);  
+
+//     setClaims(filtered);
+// };
+// const handleSearch = text => {
+//     setQuery(text);
+//     const filtered = allClaims.filter(item =>
+//       item.descriptions && item.descriptions.toLowerCase().match(new RegExp(text.toLowerCase(), "i"))
+//     );
+//     setClaims(filtered);
+// };
+// const handleSearch = text => {
+//     setQuery(text);
+//     const filtered = allClaims.filter(item =>
+//       typeof item.descriptions === 'string' && 
+//       item.descriptions.toLowerCase().includes(text.toLowerCase())
+//     );
+//     setClaims(filtered);
+// };
+
+const handleSearch = (text) => {
+  setQuery(text);
+
+  if (!text.trim()) {
+    setClaims(allClaims);
+    return;
+  }
+
+  const lowerText = text.toLowerCase();
+
+  const filtered = allClaims.filter(item => {
+    const { main, sub } = getExpenseNames(item, policyDetails);
+    return (
+      (main?.toLowerCase().includes(lowerText)) ||
+      (sub?.toLowerCase().includes(lowerText)) ||
+      (item.descriptions?.toLowerCase().includes(lowerText))
     );
-    setClaims(filtered);
-  };
-  
+  });
+
+  setClaims(filtered);
+};
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchData(); // This is your real fetch function
@@ -455,102 +532,492 @@ const ClaimsScreen = ({ navigation }) => {
   }, [navigation]);
   
   
-  const fetchData = async () => {
-    try {
-      const emp_id = await AsyncStorage.getItem('username');
-      const company_id = await AsyncStorage.getItem('companyname');
+//   const fetchData = async () => {
+//     try {
+//       const emp_id = await AsyncStorage.getItem('username');
+//       const company_id = await AsyncStorage.getItem('companyname');
   
-      if (!emp_id || !company_id) {
-        throw new Error('Missing emp_id or company_id in AsyncStorage');
-      }
+//       if (!emp_id || !company_id) {
+//         throw new Error('Missing emp_id or company_id in AsyncStorage');
+//       }
   
-      const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+//       const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
   
-      // Set claims data
-      setClaims(response.data.claims);
-      setAllClaims(response.data.claims);
+//       // Set claims data
+//       setClaims(response.data.claims);
+//       setAllClaims(response.data.claims);
   
-      // Get policy details
-      const policyDetails = response.data.approval_claim_data.policy_details_data;
-      console.log("Policy Details:", policyDetails);  // Ensure policies are loaded correctly
+//       // Get policy details
+//       // const policyDetails = response.data.approval_claim_data.policy_details_data;
+//       // console.log("Policy Details:", policyDetails);  // Ensure policies are loaded correctly
+//   const policyDetails = response.data.approval_claim_data.policy_details_data;
+// setPolicyDetails(policyDetails);
+
+//       // Match policies to claims by policy_id
+//       const updatedClaims = response.data.claims.map(claim => {
+//         // Check if the claim's policy_id exists in policyDetails
+//         const matchingPolicy = policyDetails.find(policy => {
+//           console.log(`Checking claim policy_id: ${claim.policy_id} against policy policy_id: ${policy.policy_id}`);
+//           return policy.policy_id == claim.policy_id;  // Use loose comparison to handle data type differences (string vs number)
+//         });
   
-      // Match policies to claims by policy_id
-      const updatedClaims = response.data.claims.map(claim => {
-        // Check if the claim's policy_id exists in policyDetails
-        const matchingPolicy = policyDetails.find(policy => {
-          console.log(`Checking claim policy_id: ${claim.policy_id} against policy policy_id: ${policy.policy_id}`);
-          return policy.policy_id == claim.policy_id;  // Use loose comparison to handle data type differences (string vs number)
-        });
+//         console.log(`Matching policy for claim ${claim.claim_id}:`, matchingPolicy);
   
-        console.log(`Matching policy for claim ${claim.claim_id}:`, matchingPolicy);
+//         return {
+//           ...claim,
+//           policyDetails: matchingPolicy || null,  // Assign policy details if found, otherwise null
+//         };
+//       });
   
-        return {
-          ...claim,
-          policyDetails: matchingPolicy || null,  // Assign policy details if found, otherwise null
-        };
+//       console.log("Updated Claims with Policies:", updatedClaims);
+  
+//       setClaims(updatedClaims);  // Update the claims state with matched policy details
+//       setAllClaims(updatedClaims);  // Update all claims as well if needed
+  
+//     } catch (error) {
+//       console.error('Error fetching data:', error);
+//     }
+//   };
+  
+  
+//   useEffect(() => {
+//     fetchData();
+//   }, []);
+  
+  
+  
+//   const getStatusColor = (status) => {
+//     switch (status?.toLowerCase()) {
+//       case 'approved':
+//         return '#065f46';
+//       case 'pending':
+//         return '#b58900';
+//       case 'rejected':
+//         return '#d32f2f';
+//       default:
+//         return '#000';
+//     }
+//   };
+  
+
+  
+  
+// // const getExpenseNames = (claim, policyDetails) => {
+// //   if (!Array.isArray(policyDetails) || policyDetails.length === 0) {
+// //     console.warn("No policy details found for claim:", claim.claim_id);
+// //     return { main: 'N/A', sub: 'N/A' };
+// //   }
+
+// //   const claimPolicyId = String(claim.policy_id);
+// //   const claimExpenseHead = String(claim.expense_head);
+// //   const claimSubExpenseHead = String(claim.subexpense_head);
+
+// //   const match = policyDetails.find(p => {
+// //     const policyPolicyId = String(p.policy_id);
+// //     const policyMainExpenseHeadId = String(p.main_expense_head_id);
+// //     const policySubExpenseHeadId = String(p.sub_expense_head_id);
+
+// //     return (
+// //       claimPolicyId === policyPolicyId &&
+// //       claimExpenseHead === policyMainExpenseHeadId &&
+// //       claimSubExpenseHead === policySubExpenseHeadId
+// //     );
+// //   });
+
+// //   return {
+// //     main: match?.expense_head_name || 'N/A',
+// //     sub: match?.sub_expense_name || 'N/A',
+// //   };
+// // };
+// // const getExpenseNames = (claim, policyDetails) => {
+// //   if (!Array.isArray(policyDetails) || policyDetails.length === 0) {
+// //     console.warn("No policy details found for claim:", claim.claim_id);
+// //     return { main: 'N/A', sub: 'N/A' };
+// //   }
+
+// //   const match = policyDetails.find(p => {
+// //     return (
+// //       String(claim.policy_id) === String(p.policy_detail_id) &&
+// //       String(claim.expense_head) === String(p.main_expense_head_id) &&
+// //       String(claim.subexpense_head) === String(p.sub_expense_head_id)
+// //     );
+// //   });
+
+// //   return {
+// //     main: match?.expense_head_name || 'N/A',
+// //     sub: match?.sub_expense_head_name || 'N/A',
+// //   };
+// // };
+// const getExpenseNames = (claim, policyDetails) => {
+//   if (!Array.isArray(policyDetails)) return { main: 'N/A', sub: 'N/A' };
+
+//   const claimPolicyId = Number(claim.policy_id);
+//   const claimMainId = Number(claim.expense_head);
+//   const claimSubId = Number(claim.subexpense_head);
+
+//   const match = policyDetails.find(p => {
+//     const isMatch = 
+//       Number(p.policy_detail_id) === claimPolicyId &&
+//       Number(p.main_expense_head_id) === claimMainId &&
+//       Number(p.sub_expense_head_id) === claimSubId;
+
+//     if (isMatch) {
+//       console.log("✅ Match found:", {
+//         claimPolicyId,
+//         claimMainId,
+//         claimSubId,
+//         match: p
+//       });
+//     }
+
+//     return isMatch;
+//   });
+
+//   if (!match) {
+//     console.warn("❌ No match found for claim:", {
+//       claimPolicyId,
+//       claimMainId,
+//       claimSubId
+//     });
+//   }
+
+//   return {
+//     main: match?.expense_head_name || 'N/A',
+//     sub: match?.sub_expense_head_name || 'N/A',
+//   };
+// };
+
+
+// const renderClaim = ({ item }) => {
+//   const { main, sub } = getExpenseNames(item, policyDetails);
+
+
+//   console.log('CLAIM:', {
+//     policy_id: item.policy_id,
+//     expense_head: item.expense_head,
+//     subexpense_head: item.subexpense_head,
+//   });
+
+//   if (Array.isArray(policyDetails)) {
+//     policyDetails.forEach((p, i) => {
+//       console.log(`POLICY DETAIL [${i}]`, {
+//         policy_detail_id: p.policy_detail_id,
+//         main_expense_head_id: p.main_expense_head_id,
+//         sub_expense_head_id: p.sub_expense_head_id,
+//       });
+//     });
+//   } else {
+//     console.warn('policyDetails is not an array:', policyDetails);
+//   }
+  
+
+//   return (
+//     <TouchableOpacity style={[styles.claimItem, { backgroundColor: theme.cardBg }]}>
+//       <View style={styles.claimHeader}>
+//         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+//           <Text style={[styles.titleText, { color: theme.text }]}>{main}</Text>
+//         </View>
+//         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status_of_approval) }]}>
+//           <Text style={styles.statusText}>{item.status_of_approval}</Text>
+//         </View>
+//       </View>
+//       <Text style={[styles.subtitleText, { color: theme.text }]}>{sub}</Text>
+//       <View style={styles.bottomRow}>
+//         <Text style={[styles.dateText, { color: theme.text }]}>{item.submitted_date}</Text>
+//         <Text style={[styles.amountText, { color: theme.text }]}>INR. {item.documents?.[0]?.entered_amount || '0.00'}</Text>
+//       </View>
+//     </TouchableOpacity>
+//   );
+// };
+// const fetchData = async () => {
+//   try {
+//     const emp_id = await AsyncStorage.getItem('username');
+//     const company_id = await AsyncStorage.getItem('companyname');
+
+//     if (!emp_id || !company_id) {
+//       throw new Error('Missing emp_id or company_id in AsyncStorage');
+//     }
+
+//     const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+
+//     // Set claims data
+//     setClaims(response.data.claims);
+//     setAllClaims(response.data.claims);
+
+//     // Get policy details
+//     const policyDetails = response.data.approval_claim_data.policy_details_data;
+//     setPolicyDetails(policyDetails);
+
+//     // Match policies to claims by policy_id
+//     const updatedClaims = response.data.claims.map(claim => {
+//       // Check if the claim's policy_id exists in policyDetails
+//       const matchingPolicy = policyDetails.find(policy => {
+//         console.log(`Checking claim policy_id: ${claim.policy_id} against policy policy_detail_id: ${policy.policy_detail_id}`);
+//         return String(policy.policy_detail_id) === String(claim.policy_id);  // Fix: Use policy_detail_id for matching
+//       });
+
+//       console.log(`Matching policy for claim ${claim.claim_id}:`, matchingPolicy);
+
+//       return {
+//         ...claim,
+//         policyDetails: matchingPolicy || null,  // Assign policy details if found, otherwise null
+//       };
+//     });
+
+//     console.log("Updated Claims with Policies:", updatedClaims);
+
+//     setClaims(updatedClaims);  // Update the claims state with matched policy details
+//     setAllClaims(updatedClaims);  // Update all claims as well if needed
+
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+// const fetchData = async () => {
+//   try {
+//     const emp_id = await AsyncStorage.getItem('username');
+//     const company_id = await AsyncStorage.getItem('companyname');
+
+//     if (!emp_id || !company_id) {
+//       throw new Error('Missing emp_id or company_id in AsyncStorage');
+//     }
+
+//     const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+    
+//     // Log the full API response for debugging
+//     console.log('Full API Response:', response.data);
+
+//     // Set claims data
+//     setClaims(response.data.claims);
+//     setAllClaims(response.data.claims);
+
+//     // Get policy details
+//     const policyDetails = response.data.approval_claim_data.policy_details_data;
+//     setPolicyDetails(policyDetails);
+
+//     // Match policies to claims by policy_id
+//     const updatedClaims = response.data.claims.map(claim => {
+//       const matchingPolicy = policyDetails.find(policy => {
+//         console.log(`Checking claim policy_id: ${claim.policy_id} against policy policy_id: ${policy.policy_id}`);
+//         return policy.policy_id == claim.policy_id;
+//       });
+
+//       return {
+//         ...claim,
+//         policyDetails: matchingPolicy || null,
+//       };
+//     });
+
+//     setClaims(updatedClaims);
+//     setAllClaims(updatedClaims);
+
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+// const fetchData = async () => {
+//   try {
+//     const emp_id = await AsyncStorage.getItem('username');
+//     const company_id = await AsyncStorage.getItem('companyname');
+
+//     if (!emp_id || !company_id) {
+//       throw new Error('Missing emp_id or company_id in AsyncStorage');
+//     }
+
+//     const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+    
+//     // Log the policy details specifically to check their structure
+//     const policyDetails = response.data.approval_claim_data.policy_details_data;
+//     console.log("Policy Details Data:", policyDetails);
+
+//     setClaims(response.data.claims);
+//     setAllClaims(response.data.claims);
+//     setPolicyDetails(policyDetails);
+
+//     // Continue with matching policies
+//     const updatedClaims = response.data.claims.map(claim => {
+//       // const matchingPolicy = policyDetails.find(policy => {
+//       //   console.log(`Checking claim policy_id: ${claim.policy_id} against policy policy_id: ${policy.policy_id}`);
+//       //   return policy.policy_id == claim.policy_id; // Compare ids
+//       // });
+
+//       return {
+//         ...claim,
+//         policyDetails: matchingPolicy || null,
+//       };
+//     });
+
+//     setClaims(updatedClaims);
+//     setAllClaims(updatedClaims);
+
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//   }
+// };
+const fetchData = async () => {
+  try {
+    const emp_id = await AsyncStorage.getItem('username');
+    const company_id = await AsyncStorage.getItem('companyname');
+
+    if (!emp_id || !company_id) {
+      throw new Error('Missing emp_id or company_id in AsyncStorage');
+    }
+
+    const response = await axios.get(`${BASEPATH}v1/client/ocr_inserts/get_all_claims/?emp_id=${emp_id}&company_id=${company_id}`);
+
+    // Get both claims and policy details data
+    const claims = response.data.claims;
+    const policyDetailsSec = response.data.approval_claim_data.policy_details_data_sec;
+
+    console.log("Claims Data:", claims);
+    console.log("Policy Details Data:", policyDetailsSec);
+
+    // Set claims and policy details state
+    setClaims(claims);
+    setAllClaims(claims);
+    setPolicyDetails(policyDetailsSec);
+
+    // Match policies to claims by policy_id
+    const updatedClaims = claims.map(claim => {
+      const claimPolicyId = String(claim.policy_id); // Ensure comparison is done as string
+      const claimMainId = String(claim.expense_head); // Ensure comparison is done as string
+      const claimSubId = String(claim.subexpense_head); // Ensure comparison is done as string
+
+      console.log(`Checking claim policy_id: ${claimPolicyId} against policy_policy_id`);
+
+      // Find matching policy from policy_details_data_sec
+      const matchingPolicy = policyDetailsSec.find(policy => {
+        const policyPolicyId = String(policy.policy_detail_id); // Use policy_detail_id for matching
+        const policyMainId = String(policy.main_expense_head_id); // Ensure comparison is done as string
+        const policySubId = String(policy.sub_expense_head_id); // Ensure comparison is done as string
+
+        // Log the comparison before checking
+        console.log(`Checking: Claim(${claimPolicyId}, ${claimMainId}, ${claimSubId}) vs Policy(${policyPolicyId}, ${policyMainId}, ${policySubId})`);
+
+        // Match based on policy_id, expense_head, and subexpense_head
+        return policyPolicyId === claimPolicyId &&
+               policyMainId === claimMainId &&
+               policySubId === claimSubId;
       });
-  
-      console.log("Updated Claims with Policies:", updatedClaims);
-  
-      setClaims(updatedClaims);  // Update the claims state with matched policy details
-      setAllClaims(updatedClaims);  // Update all claims as well if needed
-  
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-  
-  
-  useEffect(() => {
-    fetchData();
-  }, []);
-  
-  
-  
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'approved':
-        return '#065f46';
-      case 'pending':
-        return '#b58900';
-      case 'rejected':
-        return '#d32f2f';
-      default:
-        return '#000';
-    }
-  };
-  
 
-  
-  
-const getExpenseNames = (claim, policyDetails) => {
-  if (!Array.isArray(policyDetails) || policyDetails.length === 0) {
-    console.warn("No policy details found for claim:", claim.claim_id);
-    return { main: 'N/A', sub: 'N/A' };
+      // Log if matching policy is found or not
+      console.log(`Matching policy for claim ${claim.claim_id}:`, matchingPolicy);
+
+      return {
+        ...claim,
+        policyDetails: matchingPolicy || null,
+      };
+    });
+
+    // Set the updated claims to state
+    setClaims(updatedClaims);
+    setAllClaims(updatedClaims);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
+};
 
-  const claimPolicyId = String(claim.policy_id);
-  const claimExpenseHead = String(claim.expense_head);
-  const claimSubExpenseHead = String(claim.subexpense_head);
+useEffect(() => {
+  fetchData();
+}, []);
 
-  const match = policyDetails.find(p => {
-    const policyPolicyId = String(p.policy_id);
-    const policyMainExpenseHeadId = String(p.main_expense_head_id);
-    const policySubExpenseHeadId = String(p.sub_expense_head_id);
+// Get status color
+const getStatusColor = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'approved':
+      return '#065f46';
+    case 'pending':
+      return '#b58900';
+    case 'rejected':
+      return '#d32f2f';
+    default:
+      return '#000';
+  }
+};
 
-    return (
-      claimPolicyId === policyPolicyId &&
-      claimExpenseHead === policyMainExpenseHeadId &&
-      claimSubExpenseHead === policySubExpenseHeadId
-    );
+// Get Expense names (main and sub expense names)
+// const getExpenseNames = (claim, policyDetails) => {
+//   if (!Array.isArray(policyDetails)) return { main: 'N/A', sub: 'N/A' };
+
+//   const claimPolicyId = Number(claim.policy_id);
+//   const claimMainId = Number(claim.expense_head);
+//   const claimSubId = Number(claim.subexpense_head);
+
+//   const match = policyDetails.find(p => {
+//     const isMatch =
+//       Number(p.policy_detail_id) === claimPolicyId &&
+//       Number(p.main_expense_head_id) === claimMainId &&
+//       Number(p.sub_expense_head_id) === claimSubId;
+
+//     if (isMatch) {
+//       console.log("✅ Match found:", {
+//         claimPolicyId,
+//         claimMainId,
+//         claimSubId,
+//         match: p
+//       });
+//     }
+
+//     return isMatch;
+//   });
+
+//   if (!match) {
+//     console.warn("❌ No match found for claim:", {
+//       claimPolicyId,
+//       claimMainId,
+//       claimSubId
+//     });
+//   }
+
+//   return {
+//     main: match?.expense_head_name || 'N/A',
+//     sub: match?.sub_expense_head_name || 'N/A',
+//   };
+// };
+const getExpenseNames = (claim, policyDetails) => {
+  if (!Array.isArray(policyDetails)) return { main: 'N/A', sub: 'N/A' };
+
+  const claimPolicyId = Number(claim.policy_id);
+  const claimMainId = Number(claim.expense_head);
+  const claimSubId = Number(claim.subexpense_head);
+
+  // Add logs for debugging
+  console.log(`Matching for claim ${claim.claim_id}:`, {
+    claimPolicyId,
+    claimMainId,
+    claimSubId,
   });
+
+  // Find the matching policy
+  const match = policyDetails.find(p => {
+    const policyMainId = p.main_expense_head_id ? Number(p.main_expense_head_id) : null;
+    const policySubId = p.sub_expense_head_id ? Number(p.sub_expense_head_id) : null;
+
+    const isMatch = 
+      Number(p.policy_detail_id) === claimPolicyId &&
+      policyMainId === claimMainId &&
+      policySubId === claimSubId;
+
+    return isMatch;
+  });
+
+  if (!match) {
+    console.warn("❌ No match found for claim:", {
+      claimPolicyId,
+      claimMainId,
+      claimSubId
+    });
+  }
 
   return {
     main: match?.expense_head_name || 'N/A',
-    sub: match?.sub_expense_name || 'N/A',
+    sub: match?.sub_expense_head_name || 'N/A',
   };
 };
 
+
+// Render Claim Component
 const renderClaim = ({ item }) => {
   const { main, sub } = getExpenseNames(item, policyDetails);
 
@@ -571,7 +1038,6 @@ const renderClaim = ({ item }) => {
   } else {
     console.warn('policyDetails is not an array:', policyDetails);
   }
-  
 
   return (
     <TouchableOpacity style={[styles.claimItem, { backgroundColor: theme.cardBg }]}>

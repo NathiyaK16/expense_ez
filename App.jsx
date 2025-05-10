@@ -23,7 +23,14 @@ import ViewClaimScreen from './src/screen/ViewClaimScreen/ViewClaimScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const ClaimsStack = createNativeStackNavigator();
 
+const ClaimsStackNavigator = () => (
+  <ClaimsStack.Navigator screenOptions={{ headerShown: false }}>
+    <ClaimsStack.Screen name="ClaimsList" component={ClaimsScreen} />
+    <ClaimsStack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} />
+  </ClaimsStack.Navigator>
+);
 
 const BottomTabs = () => {
 
@@ -38,13 +45,30 @@ const BottomTabs = () => {
         tabBarIcon: ({ color, size,focused }) => <Icon name="home" color={focused ? "#7E8356" : color} size={size} /> 
       }} 
     />
-    <Tab.Screen 
+    {/* <Tab.Screen 
       name="Claims" 
       component={ClaimsScreen} 
       options={{ 
         tabBarIcon: ({ color, size , focused}) => <Icon name="file-document" color={focused ? "#7E8356" : color} size={size} /> 
       }} 
-    />
+    /> */}
+    {/* <Tab.Screen
+  name="NewClaimRequest"
+  component={NewClaimRequestScreen}
+  options={{
+    tabBarButton: () => null, // Hides it from the tab bar
+    headerShown: false,
+  }}
+/> */}
+<Tab.Screen 
+  name="Claims" 
+  component={ClaimsStackNavigator}
+  options={{ 
+    tabBarIcon: ({ color, size , focused }) => (
+      <Icon name="file-document" color={focused ? "#7E8356" : color} size={size} />
+    )
+  }} 
+/>
     <Tab.Screen 
       name="Approvals" 
       component={ApprovalsScreen} 
@@ -73,8 +97,8 @@ const App = () => {
         <Stack.Screen name="ForgetPassword" component={ForgetPasswordScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="RequestOTP" component={OTPScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="CreatePassword" component={CreatePasswordScreen} options={{ headerShown: false }}/>
-        <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} options={{headerShown:false}}/>
-        <Stack.Screen name="Claims" component={ClaimsScreen} options={{headerShown:false}}/>
+        {/* <Stack.Screen name="NewClaimRequest" component={NewClaimRequestScreen} options={{headerShown:false}}/> */}
+        {/* <Stack.Screen name="Claims" component={ClaimsScreen} options={{headerShown:false}}/> */}
         <Stack.Screen name="ViewClaim" component={ViewClaimScreen} options={{headerShown:false}}/>
         <Stack.Screen name="SubmitClaim" component={ClaimSubmitScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Approvals" component={ApprovalsScreen} options={{headerShown:false}}/>

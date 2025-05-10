@@ -14,7 +14,7 @@
       };
 
     export const darkTheme = {
-        // backgroundColor: "#1e1e1e",
+        //backgroundColor: "#1e1e1e",
         // textColor: "#ffffff",
         background: "#1e1e1e",
         text: "#ffffff",
